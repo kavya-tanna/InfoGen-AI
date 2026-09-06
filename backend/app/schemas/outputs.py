@@ -1,6 +1,7 @@
 """Pydantic v2 schemas for all 7 output deliverable formats."""
 from __future__ import annotations
-from pydantic import BaseModel, Field
+import re
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from typing import Literal
 
@@ -52,6 +53,33 @@ class LinkedInPostOutput(DeliverableOutput):
     hashtags: list[str] = Field(default_factory=list)
     carousel_slides: list[CarouselSlide] = Field(default_factory=list)
 
+    @field_validator("post", mode="before")
+    @classmethod
+    def coerce_linkedin_post(cls, v):
+        return str(v) if v is not None else ""
+
+    @field_validator("hashtags", mode="before")
+    @classmethod
+    def coerce_hashtags(cls, v):
+        if isinstance(v, str):
+            tags = re.findall(r"#\w+", v)
+            if tags:
+                return tags
+            return [t.strip() for t in v.split(",") if t.strip()]
+        if isinstance(v, list):
+            return [str(x) for x in v if x]
+        return []
+
+    @field_validator("key_insights", mode="before")
+    @classmethod
+    def coerce_key_insights(cls, v):
+        if isinstance(v, str):
+            v_str = v.strip()
+            return [v_str] if v_str else []
+        if isinstance(v, list):
+            return [str(x) for x in v if x]
+        return []
+
 # ── Twitter / X Post ──
 class TwitterPostOutput(DeliverableOutput):
     """Twitter / X post and thread deliverable schema."""
@@ -61,6 +89,21 @@ class TwitterPostOutput(DeliverableOutput):
     key_indicators: list[str] = Field(default_factory=list)
     cta: str = ""
     hashtags: list[str] = Field(default_factory=list)
+
+    @field_validator("primary_post", mode="before")
+    @classmethod
+    def coerce_primary_post(cls, v):
+        return str(v) if v is not None else ""
+
+    @field_validator("thread", "key_indicators", "hashtags", mode="before")
+    @classmethod
+    def coerce_twitter_lists(cls, v):
+        if isinstance(v, str):
+            v_str = v.strip()
+            return [v_str] if v_str else []
+        if isinstance(v, list):
+            return [str(x) for x in v if x]
+        return []
 
 # ── Advisory Document ──
 class AdvisoryDocumentOutput(DeliverableOutput):
@@ -82,6 +125,23 @@ class AdvisoryDocumentOutput(DeliverableOutput):
     references: list[str] = Field(default_factory=list)
     confidence_level: str = "UNSPECIFIED"
 
+    @field_validator("affected_systems", "indicators", "immediate_actions", "mitigation", "long_term_recommendations", "references", mode="before")
+    @classmethod
+    def coerce_advisory_lists(cls, v):
+        if isinstance(v, str):
+            v_str = v.strip()
+            return [v_str] if v_str else []
+        if isinstance(v, list):
+            return [str(x) for x in v if x]
+        return []
+
+    @field_validator("executive_overview", "threat_description", "impact", "technical_analysis", "risk_assessment", mode="before")
+    @classmethod
+    def coerce_advisory_strings(cls, v):
+        if isinstance(v, list):
+            return " ".join(str(x) for x in v if x)
+        return str(v) if v is not None else ""
+
 # ── Infographic ──
 class InfographicStatistic(BaseModel):
     """Data statistic callout in infographic."""
@@ -95,6 +155,19 @@ class InfographicSection(BaseModel):
     content: str = ""
     visual_element: str = "icon"  # chart|icon|diagram|metric_card|timeline|comparison
     data_points: list[str] = Field(default_factory=list)
+
+    @field_validator("data_points", mode="before")
+    @classmethod
+    def coerce_data_points(cls, v):
+        if not isinstance(v, list):
+            return []
+        res = []
+        for item in v:
+            if isinstance(item, dict):
+                res.append(" | ".join(f"{k}: {val}" for k, val in item.items() if val))
+            elif item is not None:
+                res.append(str(item))
+        return res
 
 class ColorRecommendation(BaseModel):
     """Color palette recommendation for visual infographic."""
@@ -115,6 +188,48 @@ class InfographicOutput(DeliverableOutput):
     layout: str = ""
     color_recommendations: ColorRecommendation = Field(default_factory=ColorRecommendation)
     icon_recommendations: list[str] = Field(default_factory=list)
+
+    @field_validator("icon_recommendations", mode="before")
+    @classmethod
+    def coerce_icon_recommendations(cls, v):
+        if not isinstance(v, list):
+            return []
+        res = []
+        for item in v:
+            if isinstance(item, dict):
+                res.append(" | ".join(f"{k}: {val}" for k, val in item.items() if val))
+            elif item is not None:
+                res.append(str(item))
+        return res
+
+    @field_validator("information_hierarchy", "key_messages", mode="before")
+    @classmethod
+    def coerce_infographic_lists(cls, v):
+        if isinstance(v, str):
+            if ">" in v:
+                return [s.strip() for s in v.split(">") if s.strip()]
+            if "," in v:
+                return [s.strip() for s in v.split(",") if s.strip()]
+            v_str = v.strip()
+            return [v_str] if v_str else []
+        if isinstance(v, list):
+            return [str(x) for x in v if x]
+        return []
+
+    @field_validator("color_recommendations", mode="before")
+    @classmethod
+    def coerce_color_recommendations(cls, v):
+        if isinstance(v, dict):
+            return v
+        if isinstance(v, str):
+            hexes = re.findall(r"#[0-9a-fA-F]{3,8}", v)
+            return {
+                "primary": hexes[0] if len(hexes) > 0 else "#1a365d",
+                "secondary": hexes[1] if len(hexes) > 1 else "#2d3748",
+                "accent": hexes[2] if len(hexes) > 2 else "#3182ce",
+                "rationale": v
+            }
+        return {"primary": "#1a365d", "secondary": "#2d3748", "accent": "#3182ce", "rationale": ""}
 
 # ── Executive Summary ──
 class RecommendedAction(BaseModel):
@@ -137,6 +252,40 @@ class ExecutiveSummaryOutput(DeliverableOutput):
     priority: str = "UNSPECIFIED"
     conclusion: str = ""
 
+    @field_validator("business_impact", "context", "headline", "conclusion", mode="before")
+    @classmethod
+    def coerce_summary_strings(cls, v):
+        if isinstance(v, list):
+            return " ".join(str(x) for x in v if x)
+        return str(v) if v is not None else ""
+
+    @field_validator("key_takeaways", "major_findings", "risks", "decisions_required", mode="before")
+    @classmethod
+    def coerce_summary_lists(cls, v):
+        if isinstance(v, str):
+            v_str = v.strip()
+            return [v_str] if v_str else []
+        if isinstance(v, list):
+            return [str(x) for x in v if x]
+        return []
+
+    @field_validator("recommended_actions", mode="before")
+    @classmethod
+    def coerce_recommended_actions(cls, v):
+        if not isinstance(v, list):
+            if isinstance(v, str) and v.strip():
+                return [{"action": v.strip(), "priority": "UNSPECIFIED", "timeline": "UNSPECIFIED"}]
+            return []
+        res = []
+        for item in v:
+            if isinstance(item, str) and item.strip():
+                res.append({"action": item.strip(), "priority": "UNSPECIFIED", "timeline": "UNSPECIFIED"})
+            elif isinstance(item, dict):
+                res.append(item)
+            elif hasattr(item, "action"):
+                res.append(item)
+        return res
+
 # ── Presentation Deck ──
 class PresentationSlide(BaseModel):
     """Slide breakdown with visual notes and speaker notes."""
@@ -152,11 +301,49 @@ class PresentationSlide(BaseModel):
     visual_recommendation: str = ""
     speaker_notes: str = ""
 
+    @field_validator("key_points", "key_metrics", mode="before")
+    @classmethod
+    def coerce_slide_lists(cls, v):
+        if isinstance(v, str):
+            v_str = v.strip()
+            return [v_str] if v_str else []
+        if isinstance(v, list):
+            res = []
+            for item in v:
+                if isinstance(item, dict):
+                    res.append(" | ".join(f"{k}: {val}" for k, val in item.items() if val))
+                elif item is not None:
+                    res.append(str(item))
+            return res
+        return []
+
+    @field_validator("body_content", "takeaway", "visual_recommendation", "speaker_notes", mode="before")
+    @classmethod
+    def coerce_slide_strings(cls, v):
+        if isinstance(v, list):
+            return " ".join(str(x) for x in v if x)
+        return str(v) if v is not None else ""
+
 class PresentationDeckOutput(DeliverableOutput):
     """Presentation deck deliverable schema."""
     type: str = "presentation_deck"
     title: str = ""
     slides: list[PresentationSlide] = Field(default_factory=list)
+
+    @field_validator("slides", mode="before")
+    @classmethod
+    def coerce_slides(cls, v):
+        if not isinstance(v, list):
+            return []
+        res = []
+        for s in v:
+            if isinstance(s, dict):
+                res.append(s)
+            elif isinstance(s, str) and s.strip():
+                res.append({"title": s.strip(), "key_points": [s.strip()]})
+            elif hasattr(s, "title"):
+                res.append(s)
+        return res
 
 # ── Format name → Model class mapping ──
 OUTPUT_FORMAT_MAP: dict[str, type[BaseModel]] = {

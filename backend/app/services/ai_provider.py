@@ -92,7 +92,29 @@ class NvidiaProvider(AIProvider):
                 return content
             except Exception as e:
                 last_err = e
-                logger.warning("NVIDIA request failed: %s", type(e).__name__)
+                err_str = str(e)
+                logger.warning("NVIDIA request failed: %s (%s)", type(e).__name__, err_str[:120])
+                if "429" in err_str or "Too Many Requests" in err_str or "RateLimit" in type(e).__name__:
+                    import time
+                    logger.info("NVIDIA rate limit encountered, backing off for 2.0s...")
+                    time.sleep(2.0)
+                    try:
+                        response = self._client.chat.completions.create(
+                            model=m,
+                            messages=messages,
+                            temperature=temperature,
+                            max_tokens=6000,
+                            timeout=timeout_seconds or float(settings.ai_timeout_seconds),
+                            response_format={"type": "json_object"},
+                            extra_body={"chat_template_kwargs": {"enable_thinking": False}} if "nemotron" in m else {},
+                        )
+                        content = response.choices[0].message.content or ""
+                        content = re.sub(r"<think>[\s\S]*?</think>", "", content).strip()
+                        logger.info(f"NVIDIA generation complete after retry: {len(content)} chars with model={m}")
+                        return content
+                    except Exception as retry_err:
+                        last_err = retry_err
+                        logger.warning("NVIDIA retry failed: %s", type(retry_err).__name__)
 
         raise RuntimeError("NVIDIA request failed. Check the configured model, credentials and provider availability.") from last_err
 
@@ -299,7 +321,16 @@ def reset_provider() -> None:
 def safe_parse_json(raw: str) -> dict:
     """Parse JSON from AI response, stripping markdown fences if present."""
     cleaned = raw.strip()
-    # Remove markdown code fences
+    # Check if there is a ```json ... ``` block anywhere in the text
+    fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", cleaned)
+    if fence_match:
+        candidate = fence_match.group(1).strip()
+        try:
+            return json.loads(candidate)
+        except json.JSONDecodeError:
+            pass
+
+    # Remove edge markdown code fences
     cleaned = re.sub(r"^```(?:json)?\s*\n?", "", cleaned)
     cleaned = re.sub(r"\n?```\s*$", "", cleaned)
     cleaned = cleaned.strip()
