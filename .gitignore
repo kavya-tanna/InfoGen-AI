@@ -61,3 +61,4 @@ backend/*.srt
 *.srt
 *.vtt
 *.zip
+test-artifacts/

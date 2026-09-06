@@ -13,6 +13,8 @@ from __future__ import annotations
 import io
 import os
 import textwrap
+import html
+import re
 from typing import Any
 
 from pptx import Presentation
@@ -21,6 +23,21 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
 from PIL import Image, ImageDraw, ImageFont
+from reportlab.lib.colors import HexColor
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import mm
+from reportlab.platypus import SimpleDocTemplate, Paragraph, HRFlowable, Table, TableStyle
+
+
+def _escaped_content(value):
+    if isinstance(value, str):
+        return html.escape(value)
+    if isinstance(value, list):
+        return [_escaped_content(v) for v in value]
+    if isinstance(value, dict):
+        return {k: _escaped_content(v) for k, v in value.items()}
+    return value
 
 # ═══════════════════════════════════════════════════════════════════════
 # 1. PPTX SLIDE VISUAL GENERATOR & EXPORTER
@@ -45,352 +62,196 @@ def _get_diagram_fonts():
     return f_title, f_sub, f_body, f_big, f_pill
 
 
-def _render_architecture_diagram(draw, W, H, slide_data, f_title, f_sub, f_body, f_big, f_pill):
-    draw.rounded_rectangle([25, 25, W - 25, 82], radius=10, fill=(30, 41, 59), outline=(56, 189, 248), width=1)
-    draw.text((45, 40), "SYSTEM ARCHITECTURE & DATA FLOW", fill=(56, 189, 248), font=f_title)
-    stages = [
-        ("1. INGESTION & BOUNDARY SCOPE", "Raw telemetry, input documents & parameter ingestion", (59, 130, 246)),
-        ("2. ANALYSIS & TELEMETRY ENGINE", "Cross-correlation, vulnerability mapping & fact verification", (168, 85, 247)),
-        ("3. DEFENSE & MITIGATION CONTROLS", "Containment directives, hardening & executive validation", (16, 185, 129)),
-    ]
-    y = 105
-    for st_title, st_desc, col in stages:
-        draw.rounded_rectangle([30, y, W - 30, y + 160], radius=12, fill=(15, 23, 42), outline=col, width=2)
-        draw.rounded_rectangle([45, y + 14, 210, y + 40], radius=6, fill=col)
-        draw.text((55, y + 20), "EXECUTION STAGE", fill=(255, 255, 255), font=f_pill)
-        draw.text((45, y + 55), st_title, fill=(248, 250, 252), font=f_sub)
-        draw.text((45, y + 95), st_desc, fill=(148, 163, 184), font=f_body)
-        y += 182
-
-
-def _render_metrics_diagram(draw, W, H, slide_data, f_title, f_sub, f_body, f_big, f_pill):
-    draw.rounded_rectangle([25, 25, W - 25, 82], radius=10, fill=(30, 41, 59), outline=(16, 185, 129), width=1)
-    draw.text((45, 40), "QUANTITATIVE TELEMETRY & METRICS", fill=(52, 211, 153), font=f_title)
-    
-    metrics = slide_data.get("key_metrics", [])
-    m1 = metrics[0] if len(metrics) > 0 else "99.9%"
-    m2 = metrics[1] if len(metrics) > 1 else "Tier 1 Priority"
-    m3 = metrics[2] if len(metrics) > 2 else "< 24 Hours"
-
-    cards = [
-        (m1, "Operational Availability SLA & Boundary Threshold", (56, 189, 248), 0.95),
-        (m2, "Critical Vulnerability Remediation & Containment Status", (16, 185, 129), 1.0),
-        (m3, "Target Execution Window for Strategic Hardening", (245, 158, 11), 0.8),
-    ]
-    y = 105
-    for val, label, col, ratio in cards:
-        draw.rounded_rectangle([30, y, W - 30, y + 160], radius=12, fill=(15, 23, 42), outline=col, width=2)
-        draw.text((50, y + 22), str(val), fill=col, font=f_big)
-        draw.text((50, y + 80), label, fill=(248, 250, 252), font=f_body)
-        bx0, by0, bx1, by1 = 50, y + 120, W - 50, y + 134
-        draw.rounded_rectangle([bx0, by0, bx1, by1], radius=7, fill=(30, 41, 59))
-        draw.rounded_rectangle([bx0, by0, int(bx0 + (bx1 - bx0) * ratio), by1], radius=7, fill=col)
-        y += 182
-
-
-def _render_risk_diagram(draw, W, H, slide_data, f_title, f_sub, f_body, f_big, f_pill):
-    draw.rounded_rectangle([25, 25, W - 25, 82], radius=10, fill=(30, 41, 59), outline=(239, 68, 68), width=1)
-    draw.text((45, 40), "THREAT EXPOSURE & RISK SEVERITY MATRIX", fill=(248, 113, 113), font=f_title)
-    tiers = [
-        ("CRITICAL EXPOSURE (TIER 1)", "Active exploit vectors, credential risk & data exfiltration potential.", (239, 68, 68), 0.92, "IMMEDIATE ACTION"),
-        ("HIGH SEVERITY (TIER 2)", "Configuration drift, lateral movement exposure & authentication boundary gaps.", (249, 115, 22), 0.74, "CONTAINMENT REQ"),
-        ("MEDIUM SEVERITY (TIER 3)", "Telemetry latency, policy review requirements & quarterly audit baselines.", (234, 179, 8), 0.45, "SCHEDULED"),
-    ]
-    y = 105
-    for title, desc, col, ratio, badge in tiers:
-        draw.rounded_rectangle([30, y, W - 30, y + 160], radius=12, fill=(15, 23, 42), outline=col, width=2)
-        draw.rounded_rectangle([45, y + 14, 190, y + 40], radius=6, fill=col)
-        draw.text((55, y + 20), badge, fill=(255, 255, 255), font=f_pill)
-        draw.text((45, y + 55), title, fill=col, font=f_sub)
-        draw.text((45, y + 90), desc, fill=(203, 213, 225), font=f_body)
-        bx0, by0, bx1, by1 = 45, y + 124, W - 45, y + 136
-        draw.rounded_rectangle([bx0, by0, bx1, by1], radius=6, fill=(30, 41, 59))
-        draw.rounded_rectangle([bx0, by0, int(bx0 + (bx1 - bx0) * ratio), by1], radius=6, fill=col)
-        y += 182
-
-
-def _render_roadmap_diagram(draw, W, H, slide_data, f_title, f_sub, f_body, f_big, f_pill):
-    draw.rounded_rectangle([25, 25, W - 25, 82], radius=10, fill=(30, 41, 59), outline=(168, 85, 247), width=1)
-    draw.text((45, 40), "STRATEGIC IMPLEMENTATION ROADMAP", fill=(192, 132, 252), font=f_title)
-    phases = [
-        ("PHASE 1: 0 - 24 HOURS", "IMMEDIATE CONTAINMENT", "Isolate vulnerable endpoints • Deploy emergency patch controls • Reset credentials", (59, 130, 246)),
-        ("PHASE 2: 24 - 72 HOURS", "REMEDIATION & RECOVERY", "Execute infrastructure updates • Validate configuration baselines • Run regression suite", (168, 85, 247)),
-        ("PHASE 3: POST-72 HOURS", "HARDENING & COMPLIANCE", "Enforce automated telemetry • Conduct independent security review • Leadership sign-off", (16, 185, 129)),
-    ]
-    y = 105
-    for badge, title, desc, col in phases:
-        draw.rounded_rectangle([30, y, W - 30, y + 160], radius=12, fill=(15, 23, 42), outline=col, width=2)
-        draw.rounded_rectangle([45, y + 14, 210, y + 40], radius=6, fill=col)
-        draw.text((55, y + 20), badge, fill=(255, 255, 255), font=f_pill)
-        draw.text((45, y + 55), title, fill=(248, 250, 252), font=f_sub)
-        draw.text((45, y + 95), desc, fill=(148, 163, 184), font=f_body)
-        y += 182
-
-
-def _render_decision_diagram(draw, W, H, slide_data, f_title, f_sub, f_body, f_big, f_pill):
-    draw.rounded_rectangle([25, 25, W - 25, 82], radius=10, fill=(30, 41, 59), outline=(56, 189, 248), width=1)
-    draw.text((45, 40), "EXECUTIVE DECISION & GOVERNANCE MATRIX", fill=(56, 189, 248), font=f_title)
-    pillars = [
-        ("1. FACTUAL GROUNDING", "100% Grounded in source data; zero fabricated CVEs or claims.", (16, 185, 129), "VERIFIED"),
-        ("2. RISK MITIGATION", "Comprehensive assessment spanning all defined operational surfaces.", (59, 130, 246), "CONFIRMED"),
-        ("3. OPERATIONAL READINESS", "Readiness score 94%; remediation owners assigned and prepared.", (168, 85, 247), "READY"),
-        ("4. STAKEHOLDER SIGN-OFF", "Prioritized roadmap structured for immediate stakeholder authorization.", (56, 189, 248), "APPROVED"),
-    ]
-    y = 105
-    for title, desc, col, badge in pillars:
-        draw.rounded_rectangle([30, y, W - 30, y + 125], radius=12, fill=(15, 23, 42), outline=col, width=2)
-        draw.rounded_rectangle([W - 170, y + 14, W - 50, y + 40], radius=6, fill=col)
-        draw.text((W - 158, y + 20), badge, fill=(255, 255, 255), font=f_pill)
-        draw.text((45, y + 25), title, fill=(248, 250, 252), font=f_sub)
-        draw.text((45, y + 65), desc, fill=(148, 163, 184), font=f_body)
-        y += 138
-
-
 def generate_slide_visual_image(slide_data: dict[str, Any], slide_idx: int, total_slides: int) -> io.BytesIO:
-    """Generate a high-resolution, custom visual diagram PNG matching the slide topic."""
-    W, H = 960, 680
-    img = Image.new("RGB", (W, H), color=(15, 23, 42))
+    """Render actual slide excerpts, without invented chart values or risk ratings."""
+    img = Image.new("RGB", (960, 680), color=(245, 248, 246))
     draw = ImageDraw.Draw(img)
-    f_title, f_sub, f_body, f_big, f_pill = _get_diagram_fonts()
-
-    # Outer visual container card
-    draw.rounded_rectangle([12, 12, W - 12, H - 12], radius=16, fill=(24, 34, 53), outline=(51, 65, 85), width=2)
-
-    title = str(slide_data.get("title", "")).lower()
-    vis = str(slide_data.get("visual_recommendation", "")).lower()
-
-    if "metric" in title or "data" in title or "telemetry" in title or "metric" in vis or slide_idx == 3:
-        _render_metrics_diagram(draw, W, H, slide_data, f_title, f_sub, f_body, f_big, f_pill)
-    elif "risk" in title or "threat" in title or "vulnerability" in title or "risk" in vis or slide_idx == 4:
-        _render_risk_diagram(draw, W, H, slide_data, f_title, f_sub, f_body, f_big, f_pill)
-    elif "roadmap" in title or "action" in title or "plan" in title or "mitigation" in title or slide_idx == 5:
-        _render_roadmap_diagram(draw, W, H, slide_data, f_title, f_sub, f_body, f_big, f_pill)
-    elif slide_idx == 1 or slide_idx == total_slides or "decision" in title or "conclusion" in title:
-        _render_decision_diagram(draw, W, H, slide_data, f_title, f_sub, f_body, f_big, f_pill)
-    else:
-        _render_architecture_diagram(draw, W, H, slide_data, f_title, f_sub, f_body, f_big, f_pill)
-
+    title_font, _, _, _, _ = _get_diagram_fonts()
+    draw.text((38, 35), "SOURCE BRIEFING", font=title_font, fill=(52, 105, 78))
+    draw.line((38, 82, 920, 82), fill=(170, 191, 178), width=2)
+    try:
+        body_font = ImageFont.truetype("arial.ttf", 23)
+    except OSError:
+        body_font = ImageFont.load_default(size=23)
+    points = slide_data.get("key_points") or [slide_data.get("title", "Source overview")]
+    y = 110
+    for index, point in enumerate(points[:3], 1):
+        wrapped = textwrap.wrap(str(point), width=68)[:5]
+        label = f"{index:02}"
+        draw.text((38, y), label, font=title_font, fill=(161, 57, 88))
+        for line in wrapped:
+            draw.text((95, y), line, font=body_font, fill=(38, 53, 74))
+            y += 29
+        y += 20
+        if y > 570:
+            break
+    draw.text((38, 625), "Statements from the supplied source; not independently verified.",
+              font=body_font, fill=(89, 107, 96))
     buf = io.BytesIO()
-    img.save(buf, format="PNG", quality=95)
+    img.save(buf, format="PNG")
     buf.seek(0)
     return buf
 
 
 def export_presentation_pptx(deck_data: dict[str, Any]) -> io.BytesIO:
-    """Generate an executive-grade PowerPoint (.pptx) file with embedded visual diagrams and rich content."""
+    """Export the AI's complete slide list with varied, editable 16:9 layouts."""
+    import math
+
     prs = Presentation()
-    prs.slide_width = Inches(13.333)
-    prs.slide_height = Inches(7.5)
-
+    prs.slide_width, prs.slide_height = Inches(13.333), Inches(7.5)
+    ink, muted, teal, coral, paper = "182827", "586A68", "007F73", "CB5945", "F7FAF9"
     slides = deck_data.get("slides", [])
-    title_text = deck_data.get("title", "Strategic Executive Presentation")
+    if not slides:
+        raise ValueError("The presentation has no slides.")
 
-    # ── 1. TITLE SLIDE (Dark Executive Theme) ─────────────────────────
-    title_slide = prs.slides.add_slide(prs.slide_layouts[6])
+    def rect(slide, x, y, w, h, color):
+        shape = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(x), Inches(y), Inches(w), Inches(h))
+        shape.fill.solid()
+        shape.fill.fore_color.rgb = RGBColor.from_string(color)
+        shape.line.fill.background()
+        return shape
 
-    # Dark hero background
-    bg = title_slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, Inches(13.333), Inches(7.5))
-    bg.fill.solid()
-    bg.fill.fore_color.rgb = RGBColor(15, 23, 42)
-    bg.line.color.rgb = RGBColor(15, 23, 42)
+    def text(slide, value, x, y, w, h, size=22, color=ink, bold=False):
+        value = str(value or "")
+        box = slide.shapes.add_textbox(Inches(x), Inches(y), Inches(w), Inches(h))
+        frame = box.text_frame
+        frame.word_wrap = True
+        frame.margin_left = frame.margin_right = Inches(0.03)
+        frame.margin_top = frame.margin_bottom = Inches(0.02)
+        # Estimate wrapped line height before export, instead of clipping long source text.
+        while size > 10:
+            try:
+                font = ImageFont.truetype("arialbd.ttf" if bold else "arial.ttf", round(size * 96 / 72))
+            except OSError:
+                font = ImageFont.load_default(size=round(size * 96 / 72))
+            lines = 0
+            for paragraph in value.split("\n"):
+                width = 0
+                for word in paragraph.split():
+                    word_width = font.getlength(word + " ")
+                    if width and width + word_width > (w - 0.1) * 96:
+                        lines += 1
+                        width = 0
+                    lines += max(0, math.ceil(word_width / ((w - 0.1) * 96)) - 1)
+                    width += min(word_width, (w - 0.1) * 96)
+                lines += 1
+            if lines * size * 1.22 <= (h - 0.08) * 72:
+                break
+            size -= 1
+        for i, line in enumerate(value.split("\n")):
+            p = frame.paragraphs[0] if not i else frame.add_paragraph()
+            p.text = line
+            p.font.name = "Arial"
+            p.font.size = Pt(size)
+            p.font.bold = bold
+            p.font.color.rgb = RGBColor.from_string(color)
+            p.line_spacing = 1.12
+            p.space_after = Pt(4)
+        return box
 
-    # Accent glow stripe
-    glow = title_slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(0.5), Inches(11.7), Inches(0.04))
-    glow.fill.solid()
-    glow.fill.fore_color.rgb = RGBColor(56, 189, 248)
-    glow.line.color.rgb = RGBColor(56, 189, 248)
+    def points(slide, values, x, y, w, h, dark=False):
+        values = [str(v) for v in values if str(v).strip()]
+        if not values:
+            return
+        row = h / len(values)
+        for j, value in enumerate(values):
+            text(slide, f"{j + 1:02}", x, y + row*j, 0.5, min(row, 0.45), 14, "7CD8BD" if dark else teal, True)
+            text(slide, value, x+0.7, y + row*j, w-0.7, row-0.1, 23, "FFFFFF" if dark else ink)
+            if j < len(values)-1:
+                rect(slide, x+0.7, y+row*(j+1)-0.1, w-0.7, 0.012, "36524D" if dark else "D7E3E0")
 
-    # Category Pill
-    pill = title_slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(0.8), Inches(3.6), Inches(0.38))
-    pill.fill.solid()
-    pill.fill.fore_color.rgb = RGBColor(30, 41, 59)
-    pill.line.color.rgb = RGBColor(56, 189, 248)
-    pill_tf = pill.text_frame
-    pill_tf.paragraphs[0].text = "EXECUTIVE PRESENTATION DECK"
-    pill_tf.paragraphs[0].font.size = Pt(10)
-    pill_tf.paragraphs[0].font.bold = True
-    pill_tf.paragraphs[0].font.color.rgb = RGBColor(56, 189, 248)
-
-    # Main Title & Subtitle Box
-    tb = title_slide.shapes.add_textbox(Inches(0.8), Inches(1.4), Inches(7.0), Inches(2.6))
-    tf_title = tb.text_frame
-    tf_title.word_wrap = True
-    p_t = tf_title.paragraphs[0]
-    p_t.text = title_text
-    p_t.font.size = Pt(30)
-    p_t.font.bold = True
-    p_t.font.color.rgb = RGBColor(248, 250, 252)
-
-    p_sub = tf_title.add_paragraph()
-    p_sub.text = "Synthesized by InfoGen AI • Gen AI Content Transformation Platform"
-    p_sub.font.size = Pt(13)
-    p_sub.font.italic = True
-    p_sub.font.color.rgb = RGBColor(148, 163, 184)
-    p_sub.space_before = Pt(10)
-
-    # Metadata card
-    meta_card = title_slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(4.3), Inches(6.8), Inches(2.2))
-    meta_card.fill.solid()
-    meta_card.fill.fore_color.rgb = RGBColor(30, 41, 59)
-    meta_card.line.color.rgb = RGBColor(51, 65, 85)
-    meta_tf = meta_card.text_frame
-    meta_tf.word_wrap = True
-    meta_tf.margin_left = Inches(0.3)
-    meta_tf.margin_top = Inches(0.25)
-    
-    mp0 = meta_tf.paragraphs[0]
-    mp0.text = "Presentation Specifications & Alignment"
-    mp0.font.size = Pt(12)
-    mp0.font.bold = True
-    mp0.font.color.rgb = RGBColor(56, 189, 248)
-
-    meta_items = [
-        f"•  Total Content Slides: {len(slides)} Executive Slides",
-        "•  Intelligence Source: 100% Verified Primary Documentation",
-        "•  Visual Anchors: Embedded High-Resolution Architectural Diagrams",
-        "•  Presenter Tools: Comprehensive Speaker Notes Included in Deck"
-    ]
-    for mi in meta_items:
-        mp = meta_tf.add_paragraph()
-        mp.text = mi
-        mp.font.size = Pt(10.5)
-        mp.font.color.rgb = RGBColor(203, 213, 225)
-        mp.space_before = Pt(4)
-
-    # Right Hero Graphic for Title Slide
-    try:
-        hero_img = generate_slide_visual_image({"title": "Strategic Overview", "visual_recommendation": "Decision Matrix"}, 1, len(slides))
-        title_slide.shapes.add_picture(hero_img, Inches(8.0), Inches(1.4), Inches(4.5), Inches(5.1))
-    except Exception:
-        pass
-
-    # ── 2. CONTENT SLIDES (Two-Column Layout with Embedded Visual Diagrams) ──
-    for idx, slide_data in enumerate(slides, 1):
+    for index, item in enumerate(slides):
         slide = prs.slides.add_slide(prs.slide_layouts[6])
+        layout = item.get("layout", "auto")
+        metrics = [str(m) for m in item.get("key_metrics", []) if str(m).strip()]
+        bullets = list(item.get("key_points") or [])
+        body = item.get("body_content", "")
+        if body and not bullets:
+            bullets.append(body)
+        if layout == "auto":
+            layout = "cover" if index == 0 else ("metrics" if metrics else "editorial")
+        if layout == "metrics" and not metrics:
+            layout = "editorial"
+        if layout in ("process", "comparison") and len(bullets) < 2:
+            layout = "editorial"
+        dark = layout in ("cover", "closing")
+        slide.background.fill.solid()
+        slide.background.fill.fore_color.rgb = RGBColor.from_string(ink if dark else paper)
+        accent = "7CD8BD" if dark else teal
+        text_color = "FFFFFF" if dark else ink
+        rect(slide, 0.65, 0.55, 0.42, 0.055, coral)
+        text(slide, item.get("category") or deck_data.get("title", ""), 1.18, 0.37, 10.6, 0.38, 11, accent, True)
+        text(slide, f"{index+1:02}", 12.0, 0.37, 0.55, 0.38, 13, accent, True)
+        title = item.get("title", "")
+        takeaway = item.get("takeaway", "")
 
-        # Category Pill Badge
-        category_text = str(slide_data.get("category", "STRATEGIC BRIEFING")).upper()
-        pill = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(0.42), Inches(3.0), Inches(0.34))
-        pill.fill.solid()
-        pill.fill.fore_color.rgb = RGBColor(224, 242, 254)
-        pill.line.color.rgb = RGBColor(186, 230, 253)
-        pill_tf = pill.text_frame
-        pill_tf.paragraphs[0].text = category_text
-        pill_tf.paragraphs[0].font.size = Pt(9.5)
-        pill_tf.paragraphs[0].font.bold = True
-        pill_tf.paragraphs[0].font.color.rgb = RGBColor(3, 105, 161)
-
-        # Slide Title
-        slide_title = slide_data.get("title", f"Slide {idx}")
-        tb_title = slide.shapes.add_textbox(Inches(0.8), Inches(0.82), Inches(11.7), Inches(0.55))
-        p_st = tb_title.text_frame.paragraphs[0]
-        p_st.text = slide_title
-        p_st.font.size = Pt(21)
-        p_st.font.bold = True
-        p_st.font.color.rgb = RGBColor(15, 23, 42)
-
-        # Purpose / Subtitle
-        purpose = slide_data.get("purpose", "")
-        if purpose:
-            tb_p = slide.shapes.add_textbox(Inches(0.8), Inches(1.38), Inches(11.7), Inches(0.32))
-            p_p = tb_p.text_frame.paragraphs[0]
-            p_p.text = f"Objective: {purpose}"
-            p_p.font.size = Pt(11)
-            p_p.font.italic = True
-            p_p.font.color.rgb = RGBColor(100, 116, 139)
-
-        # Divider Accent Line
-        div = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(1.74), Inches(11.7), Inches(0.02))
-        div.fill.solid()
-        div.fill.fore_color.rgb = RGBColor(226, 232, 240)
-        div.line.color.rgb = RGBColor(226, 232, 240)
-
-        # Left Column Card (Key Insights)
-        left_card = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.88), Inches(6.8), Inches(4.85))
-        left_card.fill.solid()
-        left_card.fill.fore_color.rgb = RGBColor(248, 250, 252)
-        left_card.line.color.rgb = RGBColor(226, 232, 240)
-
-        tf_left = left_card.text_frame
-        tf_left.word_wrap = True
-        tf_left.margin_left = Inches(0.35)
-        tf_left.margin_right = Inches(0.35)
-        tf_left.margin_top = Inches(0.28)
-        
-        lp0 = tf_left.paragraphs[0]
-        lp0.text = "Core Insights & Strategic Discoveries"
-        lp0.font.size = Pt(12.5)
-        lp0.font.bold = True
-        lp0.font.color.rgb = RGBColor(30, 41, 59)
-        lp0.space_after = Pt(8)
-
-        points = slide_data.get("key_points", [])
-        if not points and slide_data.get("body_content"):
-            points = [slide_data.get("body_content")]
-
-        for pt in points[:5]:
-            p = tf_left.add_paragraph()
-            p.text = f"•  {pt}"
-            p.font.size = Pt(11) if len(pt) > 95 else Pt(11.5)
-            p.font.color.rgb = RGBColor(51, 65, 85)
-            p.space_after = Pt(6)
-
-        # Executive Takeaway Box (Inside Left Column)
-        takeaway = slide_data.get("takeaway", "")
-        if not takeaway and points:
-            takeaway = points[0]
-        if takeaway:
-            takeaway_box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(1.0), Inches(5.5), Inches(6.4), Inches(1.05))
-            takeaway_box.fill.solid()
-            takeaway_box.fill.fore_color.rgb = RGBColor(239, 246, 255)
-            takeaway_box.line.color.rgb = RGBColor(147, 197, 253)
-            
-            tf_t = takeaway_box.text_frame
-            tf_t.word_wrap = True
-            tf_t.margin_left = Inches(0.2)
-            tf_t.margin_top = Inches(0.15)
-            
-            tp0 = tf_t.paragraphs[0]
-            tp0.text = f"💡 Executive Takeaway: {takeaway}"
-            tp0.font.size = Pt(10.5)
-            tp0.font.bold = True
-            tp0.font.color.rgb = RGBColor(30, 64, 175)
-
-        # Right Column (High-Resolution Diagram / Image)
-        try:
-            img_buf = generate_slide_visual_image(slide_data, idx, len(slides))
-            slide.shapes.add_picture(img_buf, Inches(7.8), Inches(1.88), Inches(4.7), Inches(4.35))
-        except Exception:
-            pass
-
-        # Visual Direction Caption Box
-        vis_rec = slide_data.get("visual_recommendation", "")
-        if vis_rec:
-            tb_vis = slide.shapes.add_textbox(Inches(7.8), Inches(6.28), Inches(4.7), Inches(0.35))
-            pv = tb_vis.text_frame.paragraphs[0]
-            pv.text = f"📊 Visual: {vis_rec}"
-            pv.font.size = Pt(9.5)
-            pv.font.italic = True
-            pv.font.color.rgb = RGBColor(100, 116, 139)
-
-        # Footer Zone
-        tb_foot = slide.shapes.add_textbox(Inches(0.8), Inches(6.92), Inches(11.7), Inches(0.3))
-        pf = tb_foot.text_frame.paragraphs[0]
-        pf.text = f"InfoGen AI • Content Transformation Platform                     Slide {idx} of {len(slides)}"
-        pf.font.size = Pt(9.5)
-        pf.font.color.rgb = RGBColor(148, 163, 184)
-
-        # Speaker notes
-        notes = slide_data.get("speaker_notes", "")
-        if notes:
-            notes_slide = slide.notes_slide
-            notes_slide.notes_text_frame.text = notes
-
+        if layout == "cover":
+            text(slide, title, 0.8, 1.25, 11.7, 2.15, 44, text_color, True)
+            rect(slide, 0.85, 3.65, 2.0, 0.055, coral)
+            points(slide, bullets, 0.85, 4.0, 11.55, 1.85, dark=True)
+        elif layout == "closing":
+            text(slide, title, 0.8, 1.1, 11.7, 1.35, 36, text_color, True)
+            points(slide, bullets, 0.85, 2.85, 11.55, 3.0, dark=True)
+        else:
+            text(slide, title, 0.8, 1.05, 11.7, 1.05, 30, text_color, True)
+            rect(slide, 0.85, 2.75, 11.6, 0.012, "CEDDD8")
+            if layout == "metrics" and len(metrics) <= 2:
+                for j, metric in enumerate(metrics):
+                    y = 3.0 + j*1.5
+                    match = re.match(r"^([\d,.]+(?:%)?)\s*(.*)$", metric)
+                    if match:
+                        text(slide, match[1], 0.95, y, 3.35, 0.95, 68, teal, True)
+                        text(slide, match[2].lstrip(" -:"), 1.0, y+0.97, 3.25, 0.45, 21, muted)
+                    else:
+                        text(slide, metric, 0.95, y, 3.35, 1.3, 32, teal, True)
+                rect(slide, 4.55, 3.05, 0.015, 2.95, "CEDDD8")
+                points(slide, bullets, 4.9, 3.05, 7.45, 2.97)
+            elif layout == "metrics":
+                cols = min(len(metrics), 3)
+                rows = math.ceil(len(metrics)/cols)
+                width = 11.55/cols
+                for j, metric in enumerate(metrics):
+                    x, y = 0.85 + (j % cols)*width, 2.98 + (j//cols)*(1.8/rows)
+                    match = re.match(r"^([\d,.]+(?:%|\s*(?:million|billion))?)\s*(.*)$", metric)
+                    if match:
+                        text(slide, match[1], x+0.1, y, width-0.3, 0.85/rows, 42, teal, True)
+                        text(slide, match[2], x+0.1, y+0.9/rows, width-0.3, 0.75/rows, 17, muted)
+                    else:
+                        text(slide, metric, x+0.1, y, width-0.3, 1.65/rows, 28, teal, True)
+                points(slide, bullets, 0.85, 4.83, 11.55, 1.4)
+            elif layout == "process":
+                cols = min(len(bullets), 4)
+                rows = math.ceil(len(bullets)/cols)
+                width, height = 11.55/cols, 3.1/rows
+                for j, value in enumerate(bullets):
+                    x, y = 0.85 + (j % cols)*width, 3.0+(j//cols)*height
+                    rect(slide, x+0.06, y+0.08, width-0.22, 0.045, teal if j%2 == 0 else coral)
+                    text(slide, f"{j+1:02}", x+0.08, y+0.22, width-0.3, 0.5, 26, teal, True)
+                    text(slide, value, x+0.08, y+0.85, width-0.32, height-0.95, 20)
+            elif layout == "comparison":
+                midpoint = math.ceil(len(bullets)/2)
+                rect(slide, 6.6, 3.0, 0.018, 3.05, "BCD2CC")
+                points(slide, bullets[:midpoint], 0.85, 3.0, 5.45, 3.05)
+                points(slide, bullets[midpoint:], 7.0, 3.0, 5.35, 3.05)
+            else:
+                points(slide, bullets, 0.85, 3.03, 11.55, 3.03)
+        if takeaway and takeaway not in bullets:
+            rect(slide, 0.85, 6.32, 0.045, 0.42, coral)
+            text(slide, takeaway, 1.05, 6.28, 11.25, 0.5, 15, accent, True)
+        text(slide, "InfoGen AI  |  Source-based draft", 0.85, 7.05, 10.5, 0.22, 9, "91B5AC" if dark else muted)
+        text(slide, f"{index+1} / {len(slides)}", 11.6, 7.02, 0.85, 0.28, 10, accent)
+        notes = item.get("speaker_notes", "")
+        if body and item.get("key_points"):
+            notes += "\n\nSupporting context: " + body
+        if item.get("purpose"):
+            notes += "\n\nPurpose: " + item["purpose"]
+        if item.get("visual_recommendation"):
+            notes += "\n\nProduction direction: " + item["visual_recommendation"]
+        slide.notes_slide.notes_text_frame.text = notes.strip()
     out = io.BytesIO()
     prs.save(out)
     out.seek(0)
     return out
-
 
 # ═══════════════════════════════════════════════════════════════════════
 # 2. ADVISORY PDF EXPORT
@@ -398,6 +259,8 @@ def export_presentation_pptx(deck_data: dict[str, Any]) -> io.BytesIO:
 
 def export_advisory_pdf(data: dict[str, Any]) -> io.BytesIO:
     """Generate a high-quality Cyber Advisory PDF."""
+    data = _escaped_content(data)
+    security = data.get("document_kind") == "security"
     buf = io.BytesIO()
     doc = SimpleDocTemplate(
         buf,
@@ -470,7 +333,7 @@ def export_advisory_pdf(data: dict[str, Any]) -> io.BytesIO:
 
     # Threat Description
     if data.get("threat_description"):
-        story.append(Paragraph("Threat Analysis & Description", h2_style))
+        story.append(Paragraph("Threat Description" if security else "Issue Description", h2_style))
         story.append(Paragraph(data["threat_description"], body_style))
 
     # Affected Systems
@@ -482,7 +345,7 @@ def export_advisory_pdf(data: dict[str, Any]) -> io.BytesIO:
     # Indicators of Compromise (IOCs)
     indicators = data.get("indicators", [])
     if indicators:
-        story.append(Paragraph("Technical Indicators & IOCs", h2_style))
+        story.append(Paragraph("Technical Indicators & IOCs" if security else "Source Indicators", h2_style))
         ioc_rows = [[Paragraph(f"<code>{ioc}</code>", body_style)] for ioc in indicators]
         t = Table(ioc_rows, colWidths=[doc.width])
         t.setStyle(TableStyle([
@@ -501,7 +364,7 @@ def export_advisory_pdf(data: dict[str, Any]) -> io.BytesIO:
 
     # Immediate Actions
     if data.get("immediate_actions"):
-        story.append(Paragraph("Immediate Actions Required", h2_style))
+        story.append(Paragraph("Immediate Actions", h2_style))
         for i, act in enumerate(data["immediate_actions"], 1):
             story.append(Paragraph(f"<b>{i}.</b> {act}", body_style))
 
@@ -511,6 +374,15 @@ def export_advisory_pdf(data: dict[str, Any]) -> io.BytesIO:
         for i, mit in enumerate(data["mitigation"], 1):
             story.append(Paragraph(f"<b>{i}.</b> {mit}", body_style))
 
+    for field, heading in [
+        ("technical_analysis", "Evidence and Analysis"), ("risk_assessment", "Risk Assessment"),
+        ("long_term_recommendations", "Longer-term Recommendations"), ("references", "References"),
+    ]:
+        value = data.get(field)
+        if value:
+            story.append(Paragraph(heading, h2_style))
+            for item in value if isinstance(value, list) else [value]:
+                story.append(Paragraph(str(item), body_style))
     doc.build(story)
     buf.seek(0)
     return buf
@@ -522,6 +394,7 @@ def export_advisory_pdf(data: dict[str, Any]) -> io.BytesIO:
 
 def export_summary_pdf(data: dict[str, Any]) -> io.BytesIO:
     """Generate a clean Executive Briefing PDF."""
+    data = _escaped_content(data)
     buf = io.BytesIO()
     doc = SimpleDocTemplate(
         buf,
@@ -571,7 +444,9 @@ def export_summary_pdf(data: dict[str, Any]) -> io.BytesIO:
     story: list[Any] = []
     headline = data.get("headline", "Executive Briefing")
     story.append(Paragraph(headline, title_style))
-    story.append(Paragraph(f"Priority: <b>{data.get('priority', 'MEDIUM')}</b> | Prepared by InfoGen AI", meta_style))
+    priority = data.get("priority")
+    label = f"Priority: <b>{priority}</b> | " if priority and priority != "UNSPECIFIED" else ""
+    story.append(Paragraph(label + "Prepared by InfoGen AI", meta_style))
     story.append(HRFlowable(width="100%", thickness=1, color=HexColor("#e5e9ef"), spaceAfter=10))
 
     # Takeaways
@@ -591,6 +466,15 @@ def export_summary_pdf(data: dict[str, Any]) -> io.BytesIO:
         story.append(Paragraph("Business & Organizational Impact", h2_style))
         story.append(Paragraph(data["business_impact"], body_style))
 
+    for field, heading in [
+        ("major_findings", "Findings and Evidence"), ("risks", "Risks and Limitations"),
+        ("decisions_required", "Decisions Required"),
+    ]:
+        if data.get(field):
+            story.append(Paragraph(heading, h2_style))
+            for value in data[field]:
+                story.append(Paragraph(value, body_style))
+
     # Recommended Actions
     actions = data.get("recommended_actions", [])
     if actions:
@@ -598,8 +482,10 @@ def export_summary_pdf(data: dict[str, Any]) -> io.BytesIO:
         for i, a in enumerate(actions, 1):
             act_text = a.get("action", a) if isinstance(a, dict) else str(a)
             prio = a.get("priority", "") if isinstance(a, dict) else ""
-            prio_str = f" [{prio}]" if prio else ""
-            story.append(Paragraph(f"<b>{i}.{prio_str}</b> {act_text}", body_style))
+            prio_str = f" [{prio}]" if prio and prio != "UNSPECIFIED" else ""
+            timeline = a.get("timeline", "") if isinstance(a, dict) else ""
+            timing = f" Timing: {timeline}." if timeline and timeline != "UNSPECIFIED" else ""
+            story.append(Paragraph(f"<b>{i}.{prio_str}</b> {act_text}{timing}", body_style))
 
     # Conclusion
     if data.get("conclusion"):
@@ -617,6 +503,7 @@ def export_summary_pdf(data: dict[str, Any]) -> io.BytesIO:
 
 def export_infographic_html(data: dict[str, Any]) -> str:
     """Generate a standalone visual responsive HTML infographic."""
+    data = _escaped_content(data)
     title = data.get("title", "Infographic Specification")
     subtitle = data.get("subtitle", "")
     stats = data.get("key_statistics", [])
@@ -624,11 +511,14 @@ def export_infographic_html(data: dict[str, Any]) -> str:
     colors = data.get("color_recommendations", {})
     primary_color = colors.get("primary", "#26354a")
     accent_color = colors.get("accent", "#5b7cfa")
+    primary_color = primary_color if re.fullmatch(r"#[0-9a-fA-F]{6}", primary_color) else "#26354a"
+    accent_color = accent_color if re.fullmatch(r"#[0-9a-fA-F]{6}", accent_color) else "#48755b"
 
     stats_html = "".join([
         f"""<div class="stat-card">
             <div class="stat-val">{s.get('value', '')}</div>
             <div class="stat-label">{s.get('label', '')}</div>
+            <p class="source-ref">{s.get('source_reference', '')}</p>
         </div>"""
         for s in stats
     ])
@@ -637,15 +527,17 @@ def export_infographic_html(data: dict[str, Any]) -> str:
         f"""<div class="section-card">
             <h3>{sec.get('section_title', '')}</h3>
             <p>{sec.get('content', '')}</p>
-            <div class="tag">{sec.get('visual_element', 'card')}</div>
+            <ol class="{'timeline' if sec.get('visual_element') == 'timeline' else 'points'}">{"".join("<li>" + point + "</li>" for point in sec.get('data_points', []))}</ol>
         </div>"""
         for sec in sections
     ])
 
+    messages_html = "".join("<li>" + message + "</li>" for message in data.get("key_messages", []))
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title}</title>
 <style>
 body{{font-family:'Segoe UI',sans-serif;background:#f7f8fa;color:#26354a;padding:30px;max-width:960px;margin:0 auto}}
@@ -661,6 +553,14 @@ h1{{color:{primary_color};font-size:32px;margin-bottom:8px}}
 h3{{color:{primary_color};margin-bottom:10px}}
 p{{font-size:13px;line-height:1.6;color:#4a5568}}
 .tag{{display:inline-block;background:#eef2f6;color:{primary_color};font-size:10px;padding:4px 8px;border-radius:6px;margin-top:12px;font-weight:600}}
+*{{box-sizing:border-box;overflow-wrap:anywhere;letter-spacing:0}}
+body{{background:#fff;color:#182827;padding:24px}}
+.header{{text-align:left;border-bottom:3px solid #007f73;padding-bottom:20px}}
+.stats-grid{{gap:24px}}.stat-card{{border:0;border-bottom:3px solid #cb5945;border-radius:0;box-shadow:none;text-align:left;padding:12px 0}}
+.stat-val{{color:#007f73}}.section-card{{border:0;border-top:1px solid #d7e3e0;border-radius:0;padding:20px 0}}
+.source-ref{{font-size:11px;color:#586a68}}li{{font-size:14px;line-height:1.6;margin-bottom:8px}}
+.timeline{{border-left:2px solid #007f73;padding-left:24px}}
+@media(max-width:600px){{body{{padding:16px}}h1{{font-size:25px}}.sections-grid{{grid-template-columns:minmax(0,1fr)}}}}
 </style>
 </head>
 <body>
@@ -670,5 +570,6 @@ p{{font-size:13px;line-height:1.6;color:#4a5568}}
 </div>
 <div class="stats-grid">{stats_html}</div>
 <div class="sections-grid">{sections_html}</div>
+{('<section><h2>What this means</h2><ul>' + messages_html + '</ul></section>') if messages_html else ''}
 </body>
 </html>"""

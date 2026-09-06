@@ -2,6 +2,13 @@
 from __future__ import annotations
 from pydantic import BaseModel, Field
 from typing import Optional
+from typing import Literal
+
+class DeliverableOutput(BaseModel):
+    generation_mode: str = "ai"
+    provider: str = ""
+    model: str = ""
+    warnings: list[str] = Field(default_factory=list)
 
 # ── Video Package ──
 class VideoScene(BaseModel):
@@ -15,7 +22,7 @@ class VideoScene(BaseModel):
     camera: str = ""
     on_screen_text: str = ""
 
-class VideoPackageOutput(BaseModel):
+class VideoPackageOutput(DeliverableOutput):
     """Complete video package deliverable schema."""
     type: str = "video_package"
     title: str = ""
@@ -35,7 +42,7 @@ class CarouselSlide(BaseModel):
     headline: str = ""
     body: str = ""
 
-class LinkedInPostOutput(BaseModel):
+class LinkedInPostOutput(DeliverableOutput):
     """LinkedIn post deliverable schema."""
     type: str = "linkedin_post"
     hook: str = ""
@@ -46,7 +53,7 @@ class LinkedInPostOutput(BaseModel):
     carousel_slides: list[CarouselSlide] = Field(default_factory=list)
 
 # ── Twitter / X Post ──
-class TwitterPostOutput(BaseModel):
+class TwitterPostOutput(DeliverableOutput):
     """Twitter / X post and thread deliverable schema."""
     type: str = "twitter_post"
     primary_post: str = ""
@@ -56,9 +63,10 @@ class TwitterPostOutput(BaseModel):
     hashtags: list[str] = Field(default_factory=list)
 
 # ── Advisory Document ──
-class AdvisoryDocumentOutput(BaseModel):
+class AdvisoryDocumentOutput(DeliverableOutput):
     """Formal cybersecurity advisory document deliverable schema."""
     type: str = "advisory_document"
+    document_kind: Literal["security", "informational"] = "informational"
     title: str = ""
     severity: str = "INFORMATIONAL"
     executive_overview: str = ""
@@ -72,7 +80,7 @@ class AdvisoryDocumentOutput(BaseModel):
     mitigation: list[str] = Field(default_factory=list)
     long_term_recommendations: list[str] = Field(default_factory=list)
     references: list[str] = Field(default_factory=list)
-    confidence_level: str = "MEDIUM"
+    confidence_level: str = "UNSPECIFIED"
 
 # ── Infographic ──
 class InfographicStatistic(BaseModel):
@@ -95,7 +103,7 @@ class ColorRecommendation(BaseModel):
     accent: str = "#3182ce"
     rationale: str = ""
 
-class InfographicOutput(BaseModel):
+class InfographicOutput(DeliverableOutput):
     """Infographic deliverable design specification schema."""
     type: str = "infographic"
     title: str = ""
@@ -112,10 +120,10 @@ class InfographicOutput(BaseModel):
 class RecommendedAction(BaseModel):
     """Action item with priority and timeline."""
     action: str = ""
-    priority: str = "MEDIUM"
-    timeline: str = "short-term"
+    priority: str = "UNSPECIFIED"
+    timeline: str = "UNSPECIFIED"
 
-class ExecutiveSummaryOutput(BaseModel):
+class ExecutiveSummaryOutput(DeliverableOutput):
     """Executive summary deliverable schema."""
     type: str = "executive_summary"
     headline: str = ""
@@ -126,24 +134,25 @@ class ExecutiveSummaryOutput(BaseModel):
     risks: list[str] = Field(default_factory=list)
     decisions_required: list[str] = Field(default_factory=list)
     recommended_actions: list[RecommendedAction] = Field(default_factory=list)
-    priority: str = "MEDIUM"
+    priority: str = "UNSPECIFIED"
     conclusion: str = ""
 
 # ── Presentation Deck ──
 class PresentationSlide(BaseModel):
     """Slide breakdown with visual notes and speaker notes."""
     slide_number: int = 1
+    layout: Literal["auto", "cover", "editorial", "metrics", "process", "comparison", "closing"] = "auto"
     title: str = ""
-    category: str = "STRATEGIC BRIEFING"
+    category: str = ""
     purpose: str = ""
     key_points: list[str] = Field(default_factory=list)
-    body_content: str = ""
+    body_content: str = Field(default="", description="Narrative only when key_points is empty; otherwise leave empty to avoid duplication")
     takeaway: str = ""
     key_metrics: list[str] = Field(default_factory=list)
     visual_recommendation: str = ""
     speaker_notes: str = ""
 
-class PresentationDeckOutput(BaseModel):
+class PresentationDeckOutput(DeliverableOutput):
     """Presentation deck deliverable schema."""
     type: str = "presentation_deck"
     title: str = ""

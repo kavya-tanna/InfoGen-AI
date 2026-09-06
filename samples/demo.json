@@ -1,0 +1,26 @@
+[
+  {
+    "id": "news",
+    "title": "Riverton libraries launch a device-lending pilot",
+    "content_type": "News Article",
+    "content": "Riverton libraries launch a device-lending pilot\nSynthetic news article for demonstration. Date: 2026-08-20.\nThe fictional Riverton Library Network announced a six-week laptop-lending pilot across four branches.\nThe pilot will make 120 devices available to adult learners and job seekers. Borrowers may keep a laptop for seven days.\nThe network said the pilot is funded through its existing digital-access budget. The total budget was not disclosed.\nLibrary staff will provide an orientation session and erase borrower data after each return.\nThe programme has not started, so participation and employment outcomes are not yet available.\nRecommendation: the network should publish lending availability and collect voluntary feedback before deciding whether to expand."
+  },
+  {
+    "id": "advisory",
+    "title": "Synthetic advisory: Northstar Gateway session flaw",
+    "content_type": "Security Advisory",
+    "content": "Synthetic advisory: Northstar Gateway session flaw\nThis is a fictional security advisory for a hackathon. Date: 2026-08-21. Advisory ID: DEMO-ADV-04.\nSeverity: HIGH.\nAffected systems: Northstar Gateway versions 3.1 and 3.2 with the legacy session endpoint enabled.\nA missing session-expiry check may allow a previously issued token to remain usable after logout.\nImpact: an attacker who already possesses a valid token could access the same account until the token is revoked.\nIndicators from the synthetic lab: repeated requests to /legacy/session after logout; source address 192.0.2.44; hostname gateway-demo.example.\nNo CVE has been assigned. There is no evidence in this exercise of exploitation outside the lab.\nMitigation: disable the legacy session endpoint, revoke existing tokens, and upgrade to the fictional fixed version 3.2.1.\nRecommendation: administrators should review authentication logs and verify that logged-out tokens are rejected."
+  },
+  {
+    "id": "report",
+    "title": "Research brief: privacy-preserving campus analytics",
+    "content_type": "Research / Policy Report",
+    "content": "Research brief: privacy-preserving campus analytics\nSynthetic research and policy report. Date: 2026-08-22.\nA fictional university study compared aggregate occupancy dashboards with individual device tracking in three campus buildings.\nMethod: 240 participants completed a voluntary survey; facilities staff reviewed dashboard usefulness over four weeks.\nFinding: 72% of participants preferred aggregate occupancy statistics over individual movement histories.\nFinding: facilities staff reported that hourly building totals were sufficient for routine room-allocation decisions.\nLimitations: the sample was voluntary and limited to one campus. The study did not measure energy savings or long-term effects.\nPolicy recommendation: publish only aggregated counts, limit retention to 30 days, and prohibit re-identification attempts.\nRecommendation: review access permissions each semester and include students in decisions about any expansion.\nThe report provides no implementation budget or approval decision."
+  },
+  {
+    "id": "incident",
+    "title": "Incident report: Meadowbrook helpdesk account misuse",
+    "content_type": "Incident Report",
+    "content": "Incident report: Meadowbrook helpdesk account misuse\nSynthetic incident exercise for a fictional organisation. Date: 2026-08-23. All times are UTC.\n09:10: monitoring flagged a helpdesk login from an unfamiliar location.\n09:18: the response team disabled the account and revoked active sessions.\n09:35: review identified 18 ticket records accessed by the account. File contents were not downloaded according to the available logs.\n10:05: the helpdesk returned to normal operation after a 47-minute access restriction for the affected account.\nRoot cause: a reused password had been exposed in an unrelated test dataset; the account did not have multi-factor authentication enabled.\nImpact: names and internal email addresses in 18 tickets may have been viewed. No payment information was stored in those tickets.\nRemediation: reset the password, revoke tokens, enable multi-factor authentication, and notify the ticket owners.\nRecommendation: remove shared credentials and review other helpdesk accounts for the same configuration gap.\nUnknowns: the identity of the actor and any activity outside the retained logs are unavailable."
+  }
+]

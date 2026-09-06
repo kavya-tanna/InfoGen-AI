@@ -13,7 +13,11 @@ class Settings(BaseSettings):
     openai_api_key: str = Field(default="", description="OpenAI API key")
     google_api_key: str = Field(default="", description="Google Gemini API key")
     anthropic_api_key: str = Field(default="", description="Anthropic API key")
-    model_name: str = Field(default="deepseek-ai/deepseek-v4-pro", description="Primary model")
+    model_name: str = Field(default="", description="Model identifier from the configured provider")
+    ai_timeout_seconds: int = Field(default=150, ge=5, le=180, description="Total per-format generation deadline including fallback")
+    primary_timeout_seconds: int = Field(default=90, ge=5, le=150)
+    fallback_provider: str = Field(default="", description="Optional fallback: gemini")
+    gemini_model_name: str = Field(default="gemini-3.6-flash")
     fast_model_name: str = Field(default="deepseek-ai/deepseek-v4-flash", description="Fast model for extraction")
     
     # Application
@@ -31,7 +35,7 @@ class Settings(BaseSettings):
     prompts_dir: Path = Field(default_factory=lambda: Path(__file__).resolve().parent / "prompts")
     uploads_dir: Path = Field(default_factory=lambda: Path(__file__).resolve().parent.parent / "uploads")
     
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
+    model_config = {"env_file": str(Path(__file__).resolve().parent.parent / ".env"), "env_file_encoding": "utf-8", "extra": "ignore"}
     
     def has_ai_key(self) -> bool:
         """Check whether any AI provider API key is configured."""
@@ -39,7 +43,7 @@ class Settings(BaseSettings):
     
     def effective_provider(self) -> str:
         """Resolve the effective AI provider name based on configuration and available keys."""
-        if self.demo_mode and not self.has_ai_key():
+        if self.demo_mode or self.ai_provider == "demo":
             return "demo"
         if self.ai_provider == "nvidia" and self.nvidia_api_key:
             return "nvidia"
@@ -49,13 +53,22 @@ class Settings(BaseSettings):
             return "gemini"
         if self.ai_provider == "anthropic" and self.anthropic_api_key:
             return "anthropic"
-        # Auto-detect from available keys
-        if self.nvidia_api_key: return "nvidia"
-        if self.openai_api_key: return "openai"
-        if self.google_api_key: return "gemini"
-        if self.anthropic_api_key: return "anthropic"
-        if self.demo_mode: return "demo"
-        return "demo"  # fallback
+        return self.ai_provider
+
+    def configuration_error(self) -> str:
+        provider = self.effective_provider()
+        if provider == "demo":
+            return ""
+        key_fields = {"nvidia": "nvidia_api_key", "openai": "openai_api_key",
+                      "gemini": "google_api_key", "anthropic": "anthropic_api_key"}
+        if provider not in key_fields:
+            return "Select a supported AI_PROVIDER in backend/.env."
+        field = key_fields[provider]
+        if not getattr(self, field):
+            return f"Set {field.upper()} in backend/.env, then restart the server."
+        if not self.model_name:
+            return "Set MODEL_NAME in backend/.env, then restart the server."
+        return ""
 
 settings = Settings()
 

@@ -1,267 +1,160 @@
-"""
-api/routes_generate.py
-──────────────────────
-POST /api/generate — accepts JSON and multipart/form-data.
-"""
-from __future__ import annotations
-
+"""Validated ingestion, generation, persistence and exports."""
+import json
 import uuid
+from types import SimpleNamespace
 from datetime import datetime, timezone
-from typing import Any, Optional
 
-from fastapi import APIRouter, Request, UploadFile, File, Form, HTTPException
-from fastapi.responses import JSONResponse
-
+from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse, Response
+from pydantic import ValidationError
+from starlette.concurrency import run_in_threadpool
+from starlette.datastructures import UploadFile
 from app.config import settings
 from app.schemas.requests import GenerateRequest
-from app.schemas.responses import GenerateResponse, GenerateMetadata, ErrorResponse, ErrorDetail
-from app.schemas.outputs import OUTPUT_FORMAT_MAP
-from app.services.ingestion import ingest_text, ingest_file, is_url, extract_url, NormalizedSource
+from app.schemas.outputs import OUTPUT_FORMAT_MAP, OUTPUT_KEY_MAP
+from app.services.ingestion import ingest_file, ingest_text, extract_url, is_url, NormalizedSource
+from app.services.security import validate_file, sanitize_filename
 from app.services.normalizer import extract_content_intelligence
 from app.services.generator import generate_all_formats, build_combined_output
-from app.services.security import validate_file, sanitize_filename, sanitize_source_text, detect_prompt_injection
 from app.services.ai_provider import get_provider
+from app.models.database import SessionLocal, GenerationJob, GeneratedOutput
 from app.utils.logging import logger
 
 router = APIRouter()
 
 
+def error(code, message, status=400):
+    return JSONResponse(status_code=status, content={"success": False, "error": {"code": code, "message": message}})
+
+
 @router.post("/api/generate")
-async def generate(
-    request: Request,
-    # Form fields for multipart
-    source: Optional[str] = Form(None),
-    source_text: Optional[str] = Form(None),
-    audience: Optional[str] = Form(None),
-    tone: Optional[str] = Form(None),
-    language: Optional[str] = Form(None),
-    detail: Optional[str] = Form(None),
-    objective: Optional[str] = Form(None),
-    output_format: Optional[str] = Form(None),
-    files: list[UploadFile] = File(default=[]),
-):
-    """Generate content deliverables from source input.
-
-    Accepts both JSON and multipart/form-data requests.
-    """
-    job_id = str(uuid.uuid4())
-    logger.info(f"[{job_id}] Generation request received")
-
+async def generate(request: Request):
+    files = []
     try:
-        # ── Determine content type and parse request ─────────────
         content_type = request.headers.get("content-type", "")
-
         if "application/json" in content_type:
-            # JSON request
             body = await request.json()
-            source_val = body.get("source", "")
-            audience_val = body.get("audience", "General Public")
-            tone_val = body.get("tone", "Professional")
-            language_val = body.get("language", "English")
-            detail_val = body.get("detail", "Standard")
-            objective_val = body.get("objective", "Inform")
-            output_format_val = body.get("output_format", "Executive Summary")
-            uploaded_files: list[UploadFile] = []
+        elif "multipart/form-data" in content_type:
+            form = await request.form(max_files=4, max_fields=20)
+            files = [f for f in form.getlist("files") if isinstance(f, UploadFile) and f.filename]
+            body = {k: v for k, v in form.items() if isinstance(v, str)}
+            body["source"] = body.pop("source_text", "") or body.get("source", "")
         else:
-            # Multipart form-data
-            source_val = source or source_text or ""
-            audience_val = audience or "General Public"
-            tone_val = tone or "Professional"
-            language_val = language or "English"
-            detail_val = detail or "Standard"
-            objective_val = objective or "Inform"
-            output_format_val = output_format or "Executive Summary"
-            uploaded_files = files or []
-
-        # ── Validate source ──────────────────────────────────────
-        source_val = source_val.strip() if source_val else ""
-        has_text = bool(source_val)
-        has_files = bool(uploaded_files) and any(f.filename for f in uploaded_files)
-
-        if not has_text and not has_files:
-            return JSONResponse(
-                status_code=400,
-                content=ErrorResponse(
-                    error=ErrorDetail(code="EMPTY_SOURCE", message="Please provide source content (text or files).")
-                ).model_dump(),
-            )
-
-        # ── Parse selected formats ───────────────────────────────
-        selected_formats = [f.strip() for f in output_format_val.split(",") if f.strip()]
-        valid_formats = [f for f in selected_formats if f in OUTPUT_FORMAT_MAP]
-
-        if not valid_formats:
-            return JSONResponse(
-                status_code=400,
-                content=ErrorResponse(
-                    error=ErrorDetail(code="NO_VALID_FORMATS", message=f"No valid output formats selected. Available: {', '.join(OUTPUT_FORMAT_MAP.keys())}")
-                ).model_dump(),
-            )
-
-        logger.info(f"[{job_id}] Formats: {valid_formats}, Audience: {audience_val}, Tone: {tone_val}")
-
-        # ── Ingest source ────────────────────────────────────────
-        combined_text = ""
-
-        # Process uploaded files
-        if has_files:
-            for upload_file in uploaded_files:
-                if not upload_file.filename:
-                    continue
-
-                safe_name = sanitize_filename(upload_file.filename)
-                file_bytes = await upload_file.read()
-
-                # Validate file
-                is_valid, err_msg = validate_file(
-                    safe_name, upload_file.content_type, len(file_bytes)
-                )
-                if not is_valid:
-                    logger.warning(f"[{job_id}] File rejected: {safe_name} — {err_msg}")
-                    continue
-
+            return error("INVALID_REQUEST", "Send JSON or upload TXT, PDF or DOCX files.")
+        if not isinstance(body, dict):
+            return error("INVALID_REQUEST", "Request must be a JSON object.")
+        source_text = body.get("source", "")
+        if not isinstance(source_text, str):
+            return error("INVALID_REQUEST", "Source must be text.")
+        if not source_text.strip() and not files:
+            return error("EMPTY_SOURCE", "Please provide source content (text or files).")
+        params = GenerateRequest.model_validate({**body, "source": source_text or "Uploaded documents"})
+        formats = list(dict.fromkeys(params.selected_formats()))
+        if not formats or any(f not in OUTPUT_FORMAT_MAP for f in formats):
+            return error("NO_VALID_FORMATS", "Select supported deliverable formats.")
+        configuration_error = settings.configuration_error()
+        if configuration_error:
+            return error("AI_NOT_CONFIGURED", configuration_error, 503)
+        sources = []
+        for upload in files:
+            name = sanitize_filename(upload.filename)
+            data = await upload.read(settings.max_file_size_mb * 1024 * 1024 + 1)
+            valid, message = validate_file(name, upload.content_type, len(data))
+            if not valid:
+                return error("INVALID_FILE", f"{name}: {message}")
+            try:
+                extracted = await run_in_threadpool(ingest_file, data, name)
+            except Exception:
+                return error("INVALID_FILE", f"Could not read {name}. Upload a valid TXT, text-based PDF or DOCX.")
+            if not extracted.raw_text.strip():
+                return error("NO_EXTRACTABLE_CONTENT", f"{name} has no readable text. Paste the text of scanned PDFs instead.")
+            sources.append(extracted)
+        if source_text.strip():
+            if is_url(source_text.strip()):
                 try:
-                    file_source = ingest_file(file_bytes, safe_name)
-                    combined_text += file_source.raw_text + "\n\n"
-                    logger.info(f"[{job_id}] File ingested: {safe_name}, {len(file_source.raw_text)} chars")
-                except Exception as e:
-                    logger.error(f"[{job_id}] File ingestion failed for {safe_name}: {e}")
-
-        # Process text input
-        if has_text:
-            source_val = sanitize_source_text(source_val)
-
-            # Check for prompt injection (log but don't block — treat as content)
-            if detect_prompt_injection(source_val):
-                logger.warning(f"[{job_id}] Potential prompt injection detected in source text")
-
-            # Check if it's a URL
-            if is_url(source_val):
-                try:
-                    url_source = extract_url(source_val)
-                    combined_text += url_source.raw_text + "\n\n"
-                    logger.info(f"[{job_id}] URL ingested: {len(url_source.raw_text)} chars")
-                except Exception as e:
-                    logger.error(f"[{job_id}] URL ingestion failed: {e}")
-                    combined_text += source_val + "\n\n"
+                    sources.append(await run_in_threadpool(extract_url, source_text.strip()))
+                except ValueError as exc:
+                    return error("URL_EXTRACTION_FAILED", str(exc))
             else:
-                combined_text += source_val + "\n\n"
-
-        if not combined_text.strip():
-            return JSONResponse(
-                status_code=400,
-                content=ErrorResponse(
-                    error=ErrorDetail(code="NO_EXTRACTABLE_CONTENT", message="Could not extract any content from the provided source.")
-                ).model_dump(),
-            )
-
-        # ── Build normalized source ──────────────────────────────
+                sources.append(ingest_text(source_text))
+        text = "\n\n".join(s.raw_text for s in sources).strip()
+        if not text:
+            return error("NO_EXTRACTABLE_CONTENT", "The input contains no readable text.")
+        if len(text) > 50000:
+            return error("SOURCE_TOO_LONG", "Combined content exceeds 50,000 characters. Use a shorter excerpt.")
         normalized = NormalizedSource(
-            source_type="combined" if has_files else ("url" if is_url(source_val) else "text"),
-            raw_text=combined_text.strip(),
+            source_type=sources[0].source_type if len(sources) == 1 else "combined", raw_text=text,
+            metadata={"title": params.title or sources[0].metadata.get("title", ""),
+                      "content_type": params.content_type, "sources": [s.to_dict() for s in sources]},
         )
+        ci = extract_content_intelligence(normalized)
+        outputs = await run_in_threadpool(generate_all_formats, formats, ci, params.audience,
+                                         params.tone, params.language, params.detail, params.objective)
+        if len(outputs) != len(formats):
+            return error("GENERATION_FAILED", "Some outputs could not be generated. Please retry.", 503)
+        provider = SimpleNamespace(name=settings.effective_provider(),
+                                   model_name="extractive-v1" if settings.effective_provider() == "demo" else settings.model_name)
+        job_id = str(uuid.uuid4())
+        warnings = list(dict.fromkeys(w for output in outputs.values() for w in output["warnings"]))
+        persisted = True
+        try:
+            await run_in_threadpool(save_job, job_id, provider, outputs)
+        except Exception:
+            persisted = False
+            warnings.append("Results are ready but could not be saved. Download them before leaving.")
+            logger.warning("Unable to persist generation job")
+        return {
+            "success": True, "job_id": job_id, "output": build_combined_output(outputs), "outputs": outputs,
+            "metadata": {**params.model_dump(exclude={"source", "output_format"}),
+                         "title": ci.title, "provider": provider.name, "model": provider.model_name,
+                         "generated_at": datetime.now(timezone.utc).isoformat(), "persisted": persisted,
+                         "source_type": normalized.source_type, "source_characters": len(text),
+                         "generation_mode": "ai" if all(o["generation_mode"] == "ai" for o in outputs.values()) else "extractive",
+                         "warnings": warnings},
+        }
+    except (ValidationError, json.JSONDecodeError, ValueError):
+        return error("INVALID_REQUEST", "Invalid input. Use text up to 50,000 characters and valid generation options.")
+    except Exception:
+        logger.exception("Generation request failed")
+        return error("GENERATION_FAILED", "Processing failed. Please retry with a shorter text excerpt.", 503)
+    finally:
+        for upload in files:
+            await upload.close()
 
-        # ── Extract Content Intelligence ─────────────────────────
-        logger.info(f"[{job_id}] Extracting content intelligence...")
-        content_intelligence = extract_content_intelligence(normalized)
-        logger.info(f"[{job_id}] Content intelligence ready: {len(content_intelligence.facts)} facts")
 
-        # ── Generate all selected formats ────────────────────────
-        logger.info(f"[{job_id}] Generating {len(valid_formats)} formats...")
-        provider = get_provider()
-
-        outputs = generate_all_formats(
-            selected_formats=valid_formats,
-            content_intelligence=content_intelligence,
-            audience=audience_val,
-            tone=tone_val,
-            language=language_val,
-            detail=detail_val,
-            objective=objective_val,
-        )
-
-        # ── Build combined output text ───────────────────────────
-        combined_output = build_combined_output(outputs)
-
-        # ── Build response ───────────────────────────────────────
-        response = GenerateResponse(
-            success=True,
-            job_id=job_id,
-            output=combined_output,
-            outputs=outputs,
-            metadata=GenerateMetadata(
-                language=language_val,
-                audience=audience_val,
-                tone=tone_val,
-                detail=detail_val,
-                objective=objective_val,
-                generated_at=datetime.now(timezone.utc).isoformat(),
-                model=provider.model_name,
-                provider=provider.name,
-            ),
-        )
-
-        logger.info(f"[{job_id}] Generation complete: {len(outputs)} formats produced")
-        return response.model_dump()
-
-    except Exception as e:
-        logger.error(f"[{job_id}] Generation failed: {e}", exc_info=True)
-        return JSONResponse(
-            status_code=500,
-            content=ErrorResponse(
-                error=ErrorDetail(
-                    code="GENERATION_FAILED",
-                    message=f"Content generation failed: {str(e)}"
-                )
-            ).model_dump(),
-        )
+def save_job(job_id, provider, outputs):
+    with SessionLocal.begin() as db:
+        db.add(GenerationJob(id=job_id, status="completed", ai_provider=provider.name,
+                             model_name=provider.model_name, completed_at=datetime.now(timezone.utc)))
+        db.flush()
+        for key, data in outputs.items():
+            db.add(GeneratedOutput(job_id=job_id, format_type=key, content_json=data))
 
 
 @router.post("/api/export")
 async def export_deliverable(request: Request):
-    """Export deliverable to native format (.pptx, .pdf, .html)."""
-    from fastapi.responses import Response
-    from app.services.exporters import (
-        export_presentation_pptx,
-        export_advisory_pdf,
-        export_summary_pdf,
-        export_infographic_html,
-    )
-
-    body = await request.json()
-    format_type = body.get("format_type", "")
-    data = body.get("data", {})
-
-    if not data:
-        return JSONResponse(status_code=400, content={"error": "No data provided for export"})
-
-    if format_type in ("presentation_deck", "presentation"):
-        buf = export_presentation_pptx(data)
-        return Response(
-            content=buf.getvalue(),
-            media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
-            headers={"Content-Disposition": 'attachment; filename="presentation.pptx"'}
-        )
-    elif format_type in ("advisory_document", "advisory"):
-        buf = export_advisory_pdf(data)
-        return Response(
-            content=buf.getvalue(),
-            media_type="application/pdf",
-            headers={"Content-Disposition": 'attachment; filename="cyber_advisory.pdf"'}
-        )
-    elif format_type in ("executive_summary", "summary"):
-        buf = export_summary_pdf(data)
-        return Response(
-            content=buf.getvalue(),
-            media_type="application/pdf",
-            headers={"Content-Disposition": 'attachment; filename="executive_summary.pdf"'}
-        )
-    elif format_type in ("infographic",):
-        html_str = export_infographic_html(data)
-        return Response(
-            content=html_str,
-            media_type="text/html",
-            headers={"Content-Disposition": 'attachment; filename="infographic.html"'}
-        )
-
-    return JSONResponse(status_code=400, content={"error": f"Unsupported export format: {format_type}"})
+    from app.services.exporters import export_presentation_pptx, export_advisory_pdf, export_summary_pdf, export_infographic_html
+    exporters = {
+        "presentation_deck": (export_presentation_pptx, "application/vnd.openxmlformats-officedocument.presentationml.presentation", "presentation.pptx"),
+        "advisory_document": (export_advisory_pdf, "application/pdf", "advisory.pdf"),
+        "executive_summary": (export_summary_pdf, "application/pdf", "summary.pdf"),
+        "infographic": (export_infographic_html, "text/html", "infographic.html"),
+    }
+    try:
+        body = await request.json()
+        key, data = body.get("format_type"), body.get("data")
+        if key not in exporters or not isinstance(data, dict) or not data:
+            return error("INVALID_EXPORT", "Select a generated PDF, presentation or infographic to export.")
+        if len(json.dumps(data)) > 200000:
+            return error("INVALID_EXPORT", "Export content is too large.")
+        name = next(n for n, k in OUTPUT_KEY_MAP.items() if k == key)
+        data = OUTPUT_FORMAT_MAP[name](**data).model_dump()
+        exporter, media, filename = exporters[key]
+        result = await run_in_threadpool(exporter, data)
+        return Response(content=result if isinstance(result, str) else result.getvalue(), media_type=media,
+                        headers={"Content-Disposition": f'attachment; filename="{filename}"'})
+    except (ValueError, TypeError, AttributeError):
+        return error("INVALID_EXPORT", "Invalid export content.")
+    except Exception:
+        logger.exception("Export failed")
+        return error("EXPORT_FAILED", "Export failed. Try downloading the text version.", 503)

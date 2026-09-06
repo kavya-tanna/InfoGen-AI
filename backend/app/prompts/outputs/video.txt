@@ -1,4 +1,12 @@
-Generate a concise, professional Video Package based on the source intelligence.
+Write a video production package with a natural source-specific narration and actionable storyboard.
+- Decide the scene count and duration from the source, audience and detail; there is no fixed count or mandatory one-minute duration.
+- Each scene advances the story with a distinct fact, explanation or limitation. Avoid generic welcome lines, repeated conclusions and forced calls to action.
+- Write spoken narration, not bullet lists. Pace it realistically at roughly 130-160 spoken words per minute with breathing room.
+- Use continuous MM:SS scene times starting at 00:00. end_time of one scene equals start_time of the next. Seconds must be below 60.
+- Use short subject-specific scene titles and concise on_screen_text. Specify a concrete visual using actual source objects, quantities or relationships. Never suggest a chart without the needed source data.
+- camera describes a relevant framing or transition, not a mandatory cinematic shot.
+- Leave script and vtt empty; the backend derives both from narration and scene timing. Set duration_seconds to the final scene end.
+- production_notes contains only relevant production guidance; cta is empty unless an action is useful and supported. Synthetic status must be audible at least once.
 
 PARAMETERS:
 - Target Audience: {audience}
@@ -10,52 +18,4 @@ PARAMETERS:
 SOURCE INTELLIGENCE:
 {content_intelligence}
 
-Return ONLY valid JSON matching this schema:
-{{
-  "type": "video_package",
-  "title": "compelling video title",
-  "objective": "concise objective",
-  "target_audience": "{audience}",
-  "duration_seconds": 60,
-  "script": "full narration script (2-3 paragraphs)",
-  "scenes": [
-    {{
-      "scene_number": 1,
-      "start_time": "00:00",
-      "end_time": "00:15",
-      "title": "Scene 1: Introduction",
-      "narration": "concise narration text for scene 1",
-      "visual": "visual direction description",
-      "camera": "Wide shot / Pan",
-      "on_screen_text": "Key text headline"
-    }},
-    {{
-      "scene_number": 2,
-      "start_time": "00:15",
-      "end_time": "00:35",
-      "title": "Scene 2: Core Analysis",
-      "narration": "concise narration text for scene 2",
-      "visual": "infographic or chart graphic",
-      "camera": "Medium close-up",
-      "on_screen_text": "Main insight data point"
-    }},
-    {{
-      "scene_number": 3,
-      "start_time": "00:35",
-      "end_time": "00:60",
-      "title": "Scene 3: Conclusion & Next Steps",
-      "narration": "closing narration text",
-      "visual": "action checklist graphic",
-      "camera": "Fade out",
-      "on_screen_text": "Call to action text"
-    }}
-  ],
-  "cta": "clear call to action",
-  "production_notes": "guidance on pacing and visuals"
-}}
-
-CRITICAL RULES:
-- Generate 3 to 4 impactful scenes
-- Keep narration concise and conversational
-- Keep JSON compact and valid
-- All facts must come from the source intelligence
+Return ONLY a JSON object conforming to the supplied schema. Write user-facing content in {language}. All factual claims must come from the source. Empty optional fields are preferable to invented or repetitive filler.

@@ -1,4 +1,17 @@
-Generate a comprehensive, executive-ready Presentation Deck based on the source intelligence.
+Create an editorial-quality presentation whose story, length and visual rhythm fit THIS source.
+- Decide the number of slides yourself from the distinct ideas and requested detail. There is no fixed slide count. Do not pad a short announcement or compress a substantive report into a fixed template.
+- The slides array is the ENTIRE deck, including its opening and ending when useful. No extra cover is added by the exporter.
+- Make each title a concrete source-specific statement, not "Strategic Overview" or "Key Findings". Group related evidence into a coherent narrative.
+- Choose layout per slide: cover, editorial, metrics, process, comparison, or closing. Vary layouts when justified by content. A process layout MUST NOT imply chronological or causal links absent from the source.
+- key_points hold distinct concise statements; use as many as the slide actually needs. Split dense topics onto another slide. Do not repeat points in body_content or takeaway.
+- A short announcement should remain a short deck: allocate facts once, not to separate overview, metrics and process slides saying the same thing. No compulsory cover, metrics, comparison or conclusion. Choose layouts AFTER deciding the story.
+- Keep body_content empty when key_points are present. The purpose field is production metadata, not a subtitle.
+- Never calculate new averages or extrapolate outcomes. Do not invent a baseline, previous service, growth, "new scale", or a before/after comparison when none is described.
+- Synthetic status must appear in visible content, not only in speaker notes.
+- key_metrics contains ONLY exact quantities with their labels from the source; use [] when absent. A metrics layout needs actual metrics, never invented chart data.
+- Speaker notes explain nuance, limitations and supporting evidence without repeating bullets. Keep text readable: short titles, brief points and compact notes.
+- Use category for a short subject label. Use visual_recommendation for a concrete source-specific visual, not an imaginary chart or generic architecture.
+- Respect detail: a brief request condenses ideas; detailed requests cover meaningful evidence, methodology, limitations and actions if available. Do not fill every optional field.
 
 PARAMETERS:
 - Target Audience: {audience}
@@ -10,35 +23,4 @@ PARAMETERS:
 SOURCE INTELLIGENCE:
 {content_intelligence}
 
-CRITICAL RULES:
-- Generate 6 to 8 comprehensive, content-rich slides that thoroughly cover the source material.
-- Each slide MUST have 3 to 5 detailed, substantive bullet points (not brief phrases, but complete, informative explanations).
-- Ground all facts, figures, technical identifiers, versions, and claims directly in the source intelligence.
-- Never fabricate data or statistics.
-- Provide detailed speaker notes (2-3 paragraphs per slide) with sufficient depth for an executive presentation.
-- Include a specific visual diagram or chart recommendation for each slide.
-
-Return ONLY valid JSON matching this schema:
-{{
-  "type": "presentation_deck",
-  "title": "Compelling Executive Presentation Title",
-  "slides": [
-    {{
-      "slide_number": 1,
-      "title": "Executive Context & Problem Statement",
-      "category": "STRATEGIC OVERVIEW",
-      "purpose": "Establish baseline context and strategic urgency",
-      "key_points": [
-        "Comprehensive, detailed insight point 1 with data and context from source",
-        "Detailed point 2 explaining technical or business implications",
-        "Detailed point 3 covering scope and affected systems or stakeholders",
-        "Detailed point 4 highlighting immediate relevance or challenges"
-      ],
-      "body_content": "In-depth narrative synthesis providing full contextual background for this slide.",
-      "takeaway": "Key strategic takeaway summarizing the critical message of this slide.",
-      "key_metrics": ["Statistic or indicator 1 from source", "Metric 2 from source"],
-      "visual_recommendation": "Architecture Diagram: Layered data flow and perimeter defense model",
-      "speaker_notes": "Extensive speaking notes for the presenter. Explain the key findings in detail, reference specific data points, and guide the audience through the strategic implications."
-    }}
-  ]
-}}
+Return ONLY a JSON object conforming to the supplied schema. Write user-facing content in {language}. All factual claims must come from the source. Empty optional fields are preferable to invented or repetitive filler.

@@ -828,6 +828,47 @@ select:focus{border-color:#91a8d4}
     .output-grid{grid-template-columns:1fr}
     .generate-btn{min-width:100%}
 }
+
+/* Compact input workspace and responsive result surfaces. */
+*{letter-spacing:0!important}
+.hero{border:0;border-radius:0;background:transparent;box-shadow:none;padding:12px 0 20px;margin-bottom:6px}
+.hero:after,.supported-format,.hero-line{display:none}
+.hero h1{font-family:"DM Sans",sans-serif;font-size:30px}
+.card{border:0;border-top:1px solid var(--border);border-radius:0;box-shadow:none;padding:24px 0;background:transparent}
+.demo-inputs{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+.demo-inputs select{width:100%;min-height:42px}
+.input-error{border-left:3px solid #bb334c;background:#fff0f2;color:#94243a;padding:12px;margin:12px 0;font-size:13px}
+.result-notice{font-size:12px;color:#52604b;line-height:1.6;margin:10px 0;overflow-wrap:anywhere}
+.counter{position:static;text-align:right;margin-top:6px;background:transparent}
+.source-file{gap:12px}.file-details{min-width:0}.file-details strong{overflow-wrap:anywhere}
+.source-file button{border:0;background:transparent;font-size:20px;cursor:pointer;min-width:32px;min-height:32px}
+.preview-body{overflow-wrap:anywhere;min-width:0}.output-nav{flex-wrap:wrap}
+button:disabled{cursor:not-allowed;opacity:.55}
+select,textarea{max-width:100%}
+@media(max-width:680px){.demo-inputs{grid-template-columns:1fr}.brand{min-width:0}.page{width:calc(100% - 28px)}.parameter-grid{grid-template-columns:1fr 1fr}.preview-top{flex-wrap:wrap;gap:10px}.preview-body{padding:14px}}
+.deliverable-document{max-width:900px;margin:auto;text-align:left;color:#182827;overflow-wrap:anywhere;font-size:14px;line-height:1.65}
+.document-heading{border-bottom:2px solid #007f73;padding:8px 0 20px;margin-bottom:24px}
+.document-heading h2{font-size:26px;line-height:1.3;margin:8px 0}
+.document-heading p{margin:4px 0;color:#586a68}
+.eyebrow,.deck-meta{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0}
+.output-section{margin:22px 0}.output-section h3,.companion-section h3{font-size:16px;margin:0 0 10px;color:#007f73}
+.output-section p{white-space:pre-wrap;margin:0}.output-section ul,.output-section ol{padding-left:22px;margin:0}.output-section li{padding:4px 0}
+.output-section small{display:block;color:#586a68}
+.output-details{margin:12px 0 22px;border-top:1px solid #d7e3e0;padding-top:12px}.output-details summary{cursor:pointer;font-size:12px;color:#586a68}.output-details pre{white-space:pre-wrap;font-size:11px}
+.social-heading{display:flex;gap:12px;align-items:center;border-bottom:1px solid #d7e3e0;padding-bottom:16px;margin-bottom:22px}.social-heading h2{font-size:17px;margin:0}.social-heading p{font-size:12px;color:#586a68;margin:0}
+.social-mark{display:grid;place-items:center;background:#0a66c2;color:white;font-weight:700;font-size:22px;width:42px;height:42px;border-radius:4px}
+.publication-copy{white-space:pre-wrap;font-size:15px;line-height:1.75}.companion-section{border-top:1px solid #d7e3e0;padding-top:24px;margin-top:28px}
+.carousel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:12px}
+.carousel-slide{padding:20px;border:1px solid #d7e3e0;border-top:3px solid #007f73;border-radius:4px;background:#f7faf9}.carousel-slide span{color:#007f73;font-size:12px;font-weight:700}.carousel-slide h4{font-size:17px;line-height:1.35;margin:18px 0 12px}.carousel-slide p{font-size:13px;margin:0}
+.x-thread{padding-left:22px}.x-thread li{padding-left:8px;margin-bottom:18px}.x-post{border-bottom:1px solid #d7e3e0;padding-bottom:20px}.x-post footer{display:flex;justify-content:space-between;gap:12px;font-size:11px;color:#586a68;margin-top:14px}
+.deck-slide{border:1px solid #d7e3e0;border-radius:6px;padding:30px;margin:20px 0 10px;background:#f7faf9;min-height:330px}.deck-meta{display:flex;justify-content:space-between;gap:20px;color:#007f73}.deck-slide h3{font-size:27px;line-height:1.25;margin:24px 0 15px}.deck-purpose{color:#586a68;font-size:13px}.deck-points{padding-left:25px}.deck-points li{padding:9px 0 9px 8px;border-bottom:1px solid #d7e3e0;font-size:16px}
+.deck-cover,.deck-closing{background:#182827;color:white;border:0}.deck-cover .deck-meta,.deck-closing .deck-meta{color:#7cd8bd}.deck-cover .deck-purpose,.deck-closing .deck-purpose{color:#d2e7df}.deck-cover .deck-points li,.deck-closing .deck-points li{border-color:#36524d}
+.deck-takeaway{border-left:3px solid #cb5945;padding-left:12px;font-weight:600;font-size:14px;margin:24px 0 0}
+.deck-metrics{display:flex;gap:20px;flex-wrap:wrap;color:#007f73;margin:22px 0}.deck-metrics strong{font-size:24px;flex:1;min-width:140px}
+.deck-process .deck-points,.deck-comparison .deck-points{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:20px}
+.info-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:24px;margin:26px 0}.info-metrics article{border-bottom:3px solid #cb5945;padding-bottom:16px}.info-metrics strong{font-size:36px;color:#007f73}.info-metrics h3{font-size:14px;margin:4px 0}.info-metrics p{font-size:11px;color:#586a68;line-height:1.4}
+.info-section{display:grid;grid-template-columns:42px minmax(0,1fr);gap:16px;border-top:1px solid #d7e3e0;padding:24px 0}.info-index{font-size:22px;font-weight:700;color:#cb5945}.info-section h3{font-size:18px;margin:0 0 10px}.info-section p{margin:0 0 12px}.info-timeline{border-left:2px solid #007f73;padding-left:24px}.info-timeline li,.info-points li{padding:6px 0}
+@media(max-width:600px){.deliverable-document{font-size:13px}.document-heading h2{font-size:22px}.deck-slide{padding:18px;min-height:0}.deck-slide h3{font-size:22px}.deck-points li{font-size:14px}.deck-metrics strong{font-size:21px}.publication-copy{font-size:14px}.x-post footer{flex-wrap:wrap}.info-section{gap:10px;grid-template-columns:30px minmax(0,1fr)}}
 </style>
 </head>
 
@@ -842,15 +883,16 @@ select:focus{border-color:#91a8d4}
             <div class="brand-sub">Gen AI Platform for Automated Content<br>Transformation</div>
         </div>
     </div>
+    <span id="engineState" class="engine-status" role="status">Connecting...</span>
 </header>
 
 <main class="page">
 
 <section class="hero">
-    <h1>Transform Raw Content into Powerful Communication Deliverables</h1>
+    <h1>InfoGen AI</h1>
     <p>
         Convert news articles, security threat intelligence, reports, incident reports,
-        announcements, research papers, documents, images, videos or free-form prompts
+        announcements, research papers, documents or free-form text
         into the communication format your audience needs — from one source, simultaneously.
     </p>
     <div class="hero-line"></div>
@@ -866,11 +908,18 @@ select:focus{border-color:#91a8d4}
     <div class="section-head">
         <div class="step">1</div>
         <div>
-            <h2>Source Content Ingestion <span class="pill">Multi-Modal Input</span></h2>
-            <p>Provide high-quality text, documents, threat intelligence, news articles, reports, media or a free-form prompt.</p>
+            <h2>Source Content <span class="pill">Text &amp; Documents</span></h2>
+            <p>News, advisories, research, policies and incident reports.</p>
         </div>
     </div>
 
+    <div class="demo-inputs">
+        <div class="parameter"><label for="samplePicker">Demo example</label>
+            <select id="samplePicker"><option value="">Choose a synthetic sample</option></select></div>
+        <div class="parameter"><label for="contentType">Content type</label>
+            <select id="contentType"><option>Free-form Text</option><option>News Article</option><option>Security Advisory</option><option>Research / Policy Report</option><option>Incident Report</option></select></div>
+    </div>
+    <div id="inputError" class="input-error" role="alert" hidden></div>
    <div class="universal-source">
 
     <div class="drop-zone" id="dropZone">
@@ -878,12 +927,12 @@ select:focus{border-color:#91a8d4}
         <h3>Drop your source here</h3>
 
         <p class="drop-main">
-            Drag & drop any file, or
+            Drag &amp; drop a document, or
             <button type="button" id="browseBtn">browse files</button>
         </p>
 
         <p class="supported">
-            PDF • DOCX • TXT • Images • Audio • Video
+            PDF • DOCX • TXT • Up to 4 files, 25 MB each
         </p>
 
         <div class="divider">
@@ -892,12 +941,13 @@ select:focus{border-color:#91a8d4}
 
         <textarea
             id="sourceText"
-            maxlength="8000"
+            maxlength="50000"
+            aria-label="Source content"
             placeholder="Paste text, a webpage URL, article, prompt or other source content here..."
         ></textarea>
 
         <div class="counter">
-            <span id="charCount">0</span>/8000
+            <span id="charCount">0</span>/50000
         </div>
 
     </div>
@@ -907,7 +957,7 @@ select:focus{border-color:#91a8d4}
         id="sourceInput"
         hidden
         multiple
-        accept=".pdf,.doc,.docx,.txt,image/*,audio/*,video/*"
+        accept=".pdf,.docx,.txt"
     >
 
     <div id="sourceFiles" class="source-files"></div>
@@ -915,7 +965,7 @@ select:focus{border-color:#91a8d4}
 </div>
 
     <div class="input-actions">
-        <span class="file-info">Input can be combined with contextual instructions.</span>
+        <span class="file-info" id="sourceNotice">Synthetic examples contain fictional organisations and events.</span>
         <button class="small-btn" onclick="clearSource()">↻ Clear Source</button>
     </div>
 </section>
@@ -956,7 +1006,7 @@ select:focus{border-color:#91a8d4}
         <div class="parameter">
             <label><span class="param-icon">◎</span>Target Language</label>
             <select id="language">
-                <option>English </option>
+                <option>English</option>
                 <option>Hindi</option>
                 <option>Gujarati</option>
                 <option>Spanish</option>
@@ -1081,10 +1131,11 @@ select:focus{border-color:#91a8d4}
         <span class="generated-status" id="generatedStatus">Ready to Generate</span>
     </div>
 
+    <p id="resultNotice" class="result-notice" role="status"></p>
     <div class="card preview-card" style="margin-top:14px;transition:box-shadow 0.6s ease, border-color 0.6s ease;">
         <div id="outputSuccessBanner" style="display:none;background:linear-gradient(90deg, #edf7ee, #f0f7ff);border-bottom:1px solid #dce2e9;padding:10px 18px;font-size:11px;color:#1e5622;font-weight:600;justify-content:space-between;align-items:center;">
-            <span>✓ Content transformation complete. Source inputs have been reset for your next file.</span>
-            <button onclick="startNewTransformation()" style="background:none;border:none;color:#1e7e34;font-weight:700;cursor:pointer;font-size:11px;text-decoration:underline;">+ Add another file ↑</button>
+            <span>Drafts generated. Review the source before sharing.</span>
+
         </div>
         <div class="preview-header">
             <div class="preview-title"><span class="pink">▣</span><span id="previewTitle">Deliverable Preview</span></div>
@@ -1092,7 +1143,7 @@ select:focus{border-color:#91a8d4}
                 <button class="copy-btn" id="newTransformBtn" onclick="startNewTransformation()" style="display:none;background:#eef7ee;color:#1e7e34;font-weight:700;border-color:#b7e4c7;">+ Add New Source</button>
                 <button class="copy-btn" id="downloadCurrentBtn" onclick="downloadCurrentDeliverable()" disabled style="background:#edf3fc;color:#2f54a8;font-weight:700;opacity:0.45;cursor:not-allowed;">⬇ Download Format</button>
                 <button class="copy-btn" id="downloadAllBtn" onclick="downloadAllDeliverables()" disabled style="background:#26354a;color:#fff;font-weight:700;opacity:0.45;cursor:not-allowed;">📦 Download All (.ZIP)</button>
-                <button class="copy-btn" id="copyPreviewBtn" onclick="copyPreview()" disabled style="opacity:0.45;cursor:not-allowed;">▢ Copy Full Output</button>
+                <button class="copy-btn" id="copyPreviewBtn" onclick="copyPreview()" disabled style="opacity:0.45;cursor:not-allowed;">▢ Copy Content</button>
             </div>
         </div>
 
@@ -1166,22 +1217,32 @@ dropZone.addEventListener("drop", (e) => {
 let uploadedFiles = [];
 
 function handleFiles(files) {
-    if (!files.length) return;
-    uploadedFiles = uploadedFiles.concat(files);
-    files.forEach(file => {
+    if (isGenerating) return;
+    for (const file of files) {
+        if (!/\.(pdf|docx|txt)$/i.test(file.name) || !file.size || file.size > 25 * 1024 * 1024) {
+            showInputError("Use a non-empty PDF, DOCX or TXT file up to 25 MB."); continue;
+        }
+        if (uploadedFiles.length >= 4) { showInputError("A maximum of four files can be combined."); break; }
+        uploadedFiles.push(file);
+    }
+    renderFiles();
+    sourceInput.value = "";
+}
+function renderFiles() {
+    sourceFiles.replaceChildren();
+    uploadedFiles.forEach((file, index) => {
         const item = document.createElement("div");
         item.className = "source-file";
-        item.innerHTML = `
-            <span class="file-type">${getFileIcon(file.type)}</span>
-            <div class="file-details">
-                <strong>${file.name}</strong>
-                <span>${formatFileSize(file.size)}</span>
-            </div>
-            <span class="file-status">✓ Ready</span>
-        `;
-        sourceFiles.appendChild(item);
+        const name = document.createElement("span");
+        name.className = "file-details";
+        name.textContent = file.name + " (" + formatFileSize(file.size) + ")";
+        const remove = document.createElement("button");
+        remove.type = "button"; remove.textContent = "×";
+        remove.title = "Remove " + file.name;
+        remove.setAttribute("aria-label", remove.title);
+        remove.onclick = () => { if (!isGenerating) { uploadedFiles.splice(index, 1); renderFiles(); } };
+        item.append(name, remove); sourceFiles.append(item);
     });
-    showToast(`${files.length} source${files.length > 1 ? "s" : ""} added.`);
 }
 
 function getFileIcon(type) {
@@ -1219,7 +1280,7 @@ let isGenerating = false;
 const cards=[...document.querySelectorAll(".output-card")];
 const checks=cards.map(c=>c.querySelector("input"));
 const selectedCount=document.getElementById("selectedCount");
-const generateCount=document.getElementById("generateCount");
+
 const multiPill=document.getElementById("multiPill");
 
 function setFormatHubLocked(locked) {
@@ -1254,7 +1315,7 @@ function updateOutputs(){
         card.classList.toggle("selected",input.checked);
     });
     selectedCount.textContent=`${n} deliverable${n===1?"":"s"} selected`;
-    generateCount.textContent=n;
+    document.getElementById("generateCount").textContent=n;
     multiPill.textContent=`Multi-Select Enabled (${n} Selected)`;
 
     const toggleBtn = document.getElementById("deselectBtn");
@@ -1344,6 +1405,7 @@ let generatedOutputs = {};  // per-format structured outputs
 let generatedOutput = "";   // combined text fallback
 
 function renderOutput(outputKey) {
+    pauseVideo();
     const data = generatedOutputs[OUTPUT_KEY_MAP[outputKey]];
     const body = document.getElementById("previewBody");
     const title = document.getElementById("previewTitle");
@@ -1356,6 +1418,10 @@ function renderOutput(outputKey) {
         return;
     }
 
+    document.getElementById("resultNotice").textContent = [
+        data.provider ? "Provider: " + data.provider.toUpperCase() : "",
+        ...(data.warnings || [])
+    ].filter(Boolean).join(" | ");
     // Render structured content based on type
     if (outputKey === "video" && data.scenes) {
         let scenesHtml = data.scenes.map(s => `
@@ -1418,382 +1484,93 @@ function renderOutput(outputKey) {
             </div>
             <div class="storyboard-head">▦ &nbsp; Scene-by-Scene Production Storyboard</div>
             <div class="storyboard-grid">${scenesHtml}</div>
-            ${data.vtt ? '<div style="margin-top:16px"><strong style="color:#526b91;font-size:11px">VTT Subtitles:</strong><pre style="background:#f6f8fa;border:1px solid #dce2e9;border-radius:8px;padding:12px;font-size:10px;overflow-x:auto;margin-top:6px">' + escapeHtml(data.vtt) + '</pre></div>' : ''}
+            ${data.production_notes ? outputSection("Production notes", data.production_notes) : ""}
+            ${data.vtt ? '<details class="output-details"><summary>Subtitles</summary><pre>' + escapeHtml(data.vtt) + '</pre></details>' : ''}
         `;
 
         setTimeout(() => initVideoPlayer(data), 50);
     } else if (outputKey === "advisory" && data.title) {
-        body.innerHTML = `
-            <div class="subtitle" style="max-width:900px;text-align:left;white-space:pre-wrap;">
-                <div style="margin-bottom:12px"><strong style="font-size:15px;color:#293a52">${data.title}</strong></div>
-                ${data.severity ? '<div style="margin-bottom:8px"><strong>Severity:</strong> <span style="color:#b05d77;font-weight:700">' + data.severity + '</span></div>' : ''}
-                ${data.executive_overview ? '<div style="margin-bottom:10px"><strong>Executive Overview:</strong><br>' + data.executive_overview + '</div>' : ''}
-                ${data.threat_description ? '<div style="margin-bottom:10px"><strong>Threat Description:</strong><br>' + data.threat_description + '</div>' : ''}
-                ${data.indicators && data.indicators.length ? '<div style="margin-bottom:10px"><strong>Indicators:</strong><br>' + data.indicators.map(i => '• ' + i).join('<br>') + '</div>' : ''}
-                ${data.impact ? '<div style="margin-bottom:10px"><strong>Impact:</strong><br>' + data.impact + '</div>' : ''}
-                ${data.immediate_actions && data.immediate_actions.length ? '<div style="margin-bottom:10px"><strong>Immediate Actions:</strong><br>' + data.immediate_actions.map((a,i) => (i+1) + '. ' + a).join('<br>') + '</div>' : ''}
-                ${data.mitigation && data.mitigation.length ? '<div style="margin-bottom:10px"><strong>Mitigation:</strong><br>' + data.mitigation.map((m,i) => (i+1) + '. ' + m).join('<br>') + '</div>' : ''}
-                ${data.confidence_level ? '<div><strong>Confidence:</strong> ' + data.confidence_level + '</div>' : ''}
-            </div>
-        `;
+        const security = data.document_kind === "security";
+        body.innerHTML = `<article class="deliverable-document">
+            <header class="document-heading"><p class="eyebrow">${security ? "Security advisory" : "Informational advisory"}</p><h2>${escapeHtml(data.title)}</h2>
+            ${data.severity && data.severity !== "INFORMATIONAL" ? `<p class="severity-label">Severity: ${escapeHtml(data.severity)}</p>` : ""}</header>
+            ${outputSection("Overview", data.executive_overview)}
+            ${outputSection(security ? "Affected systems" : "Scope and affected groups", data.affected_systems)}
+            ${outputSection(security ? "Threat description" : "Issue", data.threat_description)}
+            ${outputSection("Evidence and analysis", data.technical_analysis)}
+            ${outputSection("Indicators", data.indicators)}
+            ${outputSection("Impact", data.impact)}
+            ${outputSection("Risk assessment", data.risk_assessment)}
+            ${outputSection("Immediate actions", data.immediate_actions)}
+            ${outputSection(security ? "Mitigation" : "Response", data.mitigation)}
+            ${outputSection("Longer-term recommendations", data.long_term_recommendations)}
+            ${outputSection("References", data.references)}
+        </article>`;
     } else if (outputKey === "presentation" && data.slides) {
-        let slidesHtml = data.slides.map(s => {
-            const pointsHtml = (s.key_points || []).map(p => `
-                <div style="font-size:12px;color:#334155;line-height:1.55;margin-bottom:6px;display:flex;align-items:flex-start;gap:8px;">
-                    <span style="color:#3b82f6;font-weight:700;line-height:1.4;">•</span>
-                    <span>${escapeHtml(p)}</span>
-                </div>
-            `).join('');
-
-            return `
-            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
-                <!-- Slide Header -->
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-                    <div style="display:flex;align-items:center;gap:8px;">
-                        <span style="background:#0f172a;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;">Slide ${s.slide_number}</span>
-                        <span style="background:#e0f2fe;color:#0369a1;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;text-transform:uppercase;">${escapeHtml(s.category || 'Strategic Briefing')}</span>
-                    </div>
-                    <span style="font-size:11px;color:#64748b;font-style:italic;">${escapeHtml(s.purpose || '')}</span>
-                </div>
-
-                <!-- Slide Title -->
-                <h4 style="font-size:16px;color:#0f172a;font-weight:700;margin:0 0 12px 0;line-height:1.4;">${escapeHtml(s.title || '')}</h4>
-
-                <!-- Slide Body / Key Points -->
-                <div style="background:#f8fafc;border:1px solid #edf2f7;border-radius:8px;padding:14px;margin-bottom:12px;">
-                    <strong style="font-size:11px;color:#475569;text-transform:uppercase;display:block;margin-bottom:8px;">Key Insights & Findings</strong>
-                    ${pointsHtml || `<p style="font-size:12px;color:#334155;line-height:1.6;margin:0;">${escapeHtml(s.body_content || '')}</p>`}
-                </div>
-
-                <!-- Visual Direction Badge -->
-                ${s.visual_recommendation ? `
-                    <div style="background:#f1f5f9;border:1px dashed #cbd5e1;border-radius:8px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;">
-                        <span style="font-size:18px;">📊</span>
-                        <div>
-                            <strong style="font-size:10px;color:#475569;text-transform:uppercase;display:block;">Embedded PowerPoint Visual:</strong>
-                            <span style="font-size:11px;color:#1e293b;font-weight:600;">${escapeHtml(s.visual_recommendation)}</span>
-                        </div>
-                    </div>
-                ` : ''}
-
-                <!-- Takeaway Box -->
-                ${s.takeaway ? `
-                    <div style="background:#eff6ff;border-left:3px solid #3b82f6;border-radius:0 8px 8px 0;padding:8px 12px;margin-bottom:10px;font-size:11px;color:#1e40af;">
-                        <strong>💡 Executive Takeaway:</strong> ${escapeHtml(s.takeaway)}
-                    </div>
-                ` : ''}
-
-                <!-- Speaker Notes -->
-                ${s.speaker_notes ? `
-                    <div style="background:#fffbeb;border:1px solid #fef3c7;border-radius:8px;padding:10px 12px;font-size:11px;color:#92400e;line-height:1.5;">
-                        <strong style="display:block;margin-bottom:4px;color:#b45309;">🎙️ Speaker Notes (Embedded in PPTX):</strong>
-                        ${escapeHtml(s.speaker_notes)}
-                    </div>
-                ` : ''}
-            </div>
-            `;
-        }).join('');
-
-        body.innerHTML = `
-            <div style="max-width:880px;margin:0 auto;text-align:left;">
-                <!-- Header Banner -->
-                <div style="background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;border-radius:10px;padding:20px 24px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-                    <div>
-                        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#38bdf8;margin-bottom:4px;">Executive Slide Deck</div>
-                        <div style="font-size:18px;font-weight:700;">${escapeHtml(data.title || 'Strategic Executive Presentation')}</div>
-                        <div style="font-size:11px;color:#94a3b8;margin-top:4px;">${data.slides.length} Content-Rich Slides • Custom Embedded Architectural Diagrams</div>
-                    </div>
-                    <div>
-                        <button class="copy-btn" onclick="downloadCurrentDeliverable()" style="background:#38bdf8;color:#0f172a;font-weight:700;border:none;padding:8px 16px;border-radius:8px;box-shadow:0 4px 14px rgba(56,189,248,0.3);">📥 Download PowerPoint (.pptx)</button>
-                    </div>
-                </div>
-                ${slidesHtml}
-            </div>
-        `;
+        body.innerHTML = `<div class="deliverable-document">
+            <header class="document-heading"><p class="eyebrow">Presentation / ${data.slides.length} slides</p><h2>${escapeHtml(data.title)}</h2></header>
+            ${data.slides.map((s, index) => {
+                const layout = ["cover","closing","metrics","process","comparison","editorial"].includes(s.layout) ? s.layout : (index === 0 ? "cover" : "editorial");
+                return `<article class="deck-slide deck-${layout}">
+                    <div class="deck-meta"><span>${escapeHtml(s.category || "")}</span><span>${index+1} / ${data.slides.length}</span></div>
+                    <h3>${escapeHtml(s.title)}</h3>
+                    ${s.key_metrics?.length ? `<div class="deck-metrics">${s.key_metrics.map(m => `<strong>${escapeHtml(m)}</strong>`).join("")}</div>` : ""}
+                    <ol class="deck-points">${(s.key_points || []).map(p => `<li>${escapeHtml(p)}</li>`).join("")}</ol>
+                    ${s.body_content && !s.key_points?.length ? `<p>${escapeHtml(s.body_content)}</p>` : ""}
+                    ${s.takeaway ? `<p class="deck-takeaway">${escapeHtml(s.takeaway)}</p>` : ""}
+                </article>${s.speaker_notes || s.visual_recommendation ? `<details class="output-details"><summary>Speaker notes / Slide ${index+1}</summary>${outputSection("", s.speaker_notes)}${outputSection("Visual direction", s.visual_recommendation)}</details>` : ""}`;
+            }).join("")}
+        </div>`;
     } else if (outputKey === "linkedin") {
-        const slidesHtml = (data.carousel_slides || []).map(cs => `
-            <div style="background:#fff;border:1px solid #dce2e9;border-radius:8px;padding:12px;margin-bottom:8px;">
-                <span style="font-size:10px;font-weight:700;color:#0a66c2;text-transform:uppercase;">Slide ${cs.slide_number}</span>
-                <div style="font-weight:700;font-size:12px;color:#1e293b;margin:4px 0 6px;">${escapeHtml(cs.headline || '')}</div>
-                <div style="font-size:11px;color:#475569;line-height:1.5;">${escapeHtml(cs.body || '')}</div>
-            </div>
-        `).join('');
-
-        const insightsHtml = (data.key_insights || []).map(ki => `
-            <div style="background:#f0f7ff;border-left:3px solid #0a66c2;padding:8px 12px;margin-bottom:6px;font-size:11px;color:#1e3a5f;border-radius:0 6px 6px 0;">
-                💡 <strong>Key Insight:</strong> ${escapeHtml(ki)}
-            </div>
-        `).join('');
-
-        const hashtagsHtml = (data.hashtags || []).map(h => `
-            <span style="display:inline-block;background:#e8f3fc;color:#0a66c2;font-weight:600;font-size:10px;padding:3px 8px;border-radius:12px;margin:2px;">
-                ${escapeHtml(h.startsWith('#') ? h : '#' + h)}
-            </span>
-        `).join('');
-
-        body.innerHTML = `
-            <div style="max-width:850px;margin:0 auto;text-align:left;">
-                <!-- LinkedIn Feed Card -->
-                <div style="background:#fff;border:1px solid #dce2e9;border-radius:10px;padding:20px;box-shadow:0 4px 16px rgba(10,102,194,0.06);margin-bottom:16px;">
-                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;border-bottom:1px solid #edf2f7;padding-bottom:12px;">
-                        <div style="width:42px;height:42px;border-radius:50%;background:#0a66c2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;">in</div>
-                        <div>
-                            <div style="font-weight:700;font-size:13px;color:#1e293b;">InfoGen AI • Content Transformation</div>
-                            <div style="font-size:10px;color:#64748b;">Ready for LinkedIn Publication • 🌐 Public</div>
-                        </div>
-                    </div>
-
-                    ${data.hook ? `<div style="font-weight:700;font-size:13px;color:#0a66c2;margin-bottom:12px;line-height:1.5;">${escapeHtml(data.hook)}</div>` : ''}
-
-                    <div style="font-size:12px;color:#334155;line-height:1.65;white-space:pre-wrap;margin-bottom:16px;">${escapeHtml(data.post || '')}</div>
-
-                    ${insightsHtml ? `<div style="margin:14px 0;"><strong style="font-size:11px;color:#475569;display:block;margin-bottom:6px;">KEY TAKEAWAYS & INSIGHTS:</strong>${insightsHtml}</div>` : ''}
-
-                    ${data.cta ? `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;margin:12px 0;font-size:11px;color:#2563eb;"><strong>Call to Action:</strong> ${escapeHtml(data.cta)}</div>` : ''}
-
-                    ${hashtagsHtml ? `<div style="margin-top:12px;padding-top:10px;border-top:1px solid #edf2f7;">${hashtagsHtml}</div>` : ''}
-                </div>
-
-                ${slidesHtml ? `
-                    <div class="storyboard-head" style="margin-top:20px;">▦ &nbsp; Visual Carousel Deck (${(data.carousel_slides || []).length} Slides)</div>
-                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:10px;">${slidesHtml}</div>
-                ` : ''}
-            </div>
-        `;
+        body.innerHTML = `<article class="deliverable-document">
+            <header class="social-heading"><span class="social-mark">in</span><div><h2>LinkedIn draft</h2><p>${(data.post || "").length} characters</p></div></header>
+            <div class="publication-copy" data-publishable="linkedin">${escapeHtml(data.post || "")}</div>
+            ${data.carousel_slides?.length ? `<section class="companion-section"><h3>Carousel / ${data.carousel_slides.length} slides</h3>
+                <div class="carousel-grid">${data.carousel_slides.map((s,index) => `<article class="carousel-slide"><span>${String(index+1).padStart(2,"0")}</span><h4>${escapeHtml(s.headline)}</h4><p>${escapeHtml(s.body)}</p></article>`).join("")}</div></section>` : ""}
+            ${data.key_insights?.length ? `<details class="output-details"><summary>Editorial notes</summary>${outputSection("",data.key_insights)}</details>` : ""}
+        </article>`;
     } else if (outputKey === "twitter") {
-        const threadHtml = (data.thread || []).map((t, idx) => `
-            <div style="position:relative;padding-left:28px;margin-bottom:14px;">
-                <div style="position:absolute;left:8px;top:0;bottom:-14px;width:2px;background:#e2e8f0;"></div>
-                <div style="position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:#0f1419;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;">${idx + 2}</div>
-                <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,0.02);">
-                    <div style="font-size:12px;color:#0f1419;line-height:1.55;white-space:pre-wrap;">${escapeHtml(t)}</div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:6px;border-top:1px solid #f1f5f9;font-size:10px;color:#64748b;">
-                        <span>Thread ${idx + 2}/${(data.thread || []).length + 1}</span>
-                        <span style="font-family:monospace;color:${t.length > 280 ? '#e11d48' : '#10b981'};font-weight:600;">${t.length}/280 chars</span>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-
-        const hashtagsHtml = (data.hashtags || []).map(h => `
-            <span style="display:inline-block;background:#f1f5f9;color:#1d9bf0;font-weight:600;font-size:10px;padding:3px 8px;border-radius:12px;margin:2px;">
-                ${escapeHtml(h.startsWith('#') ? h : '#' + h)}
-            </span>
-        `).join('');
-
-        body.innerHTML = `
-            <div style="max-width:760px;margin:0 auto;text-align:left;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-                    <div><strong style="color:#0f1419;font-size:14px;">𝕏 / Twitter Optimized Thread</strong></div>
-                    <span style="font-size:10px;background:#f1f5f9;padding:3px 10px;border-radius:12px;color:#475569;font-weight:600;">1 Main Tweet + ${(data.thread || []).length} Thread Tweets</span>
-                </div>
-
-                <!-- Primary Tweet Card -->
-                <div style="position:relative;padding-left:28px;margin-bottom:14px;">
-                    <div style="position:absolute;left:8px;top:0;bottom:-14px;width:2px;background:#e2e8f0;"></div>
-                    <div style="position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:#1d9bf0;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;">1</div>
-                    <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:10px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,0.04);">
-                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                            <div style="font-weight:700;font-size:12px;color:#0f1419;">InfoGen AI</div>
-                            <span style="color:#1d9bf0;font-size:12px;">✓</span>
-                            <span style="color:#64748b;font-size:11px;">@InfoGenAI</span>
-                        </div>
-                        <div style="font-size:13px;color:#0f1419;line-height:1.6;white-space:pre-wrap;font-weight:500;">
-                            ${escapeHtml(data.primary_post || '')}
-                        </div>
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:10px;color:#64748b;">
-                            <span>Main Tweet</span>
-                            <span style="font-family:monospace;color:${(data.primary_post || '').length > 280 ? '#e11d48' : '#10b981'};font-weight:600;">${(data.primary_post || '').length}/280 chars</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Thread Tweets -->
-                ${threadHtml}
-
-                ${data.key_indicators && data.key_indicators.length ? `
-                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin:14px 0 10px 28px;">
-                        <strong style="font-size:10px;color:#475569;text-transform:uppercase;display:block;margin-bottom:6px;">Key Indicators:</strong>
-                        ${data.key_indicators.map(ki => '<div style="font-size:11px;color:#334155;margin-bottom:3px;">• ' + escapeHtml(ki) + '</div>').join('')}
-                    </div>
-                ` : ''}
-
-                ${hashtagsHtml ? `<div style="margin-left:28px;margin-top:10px;">${hashtagsHtml}</div>` : ''}
-            </div>
-        `;
+        const posts = [data.primary_post, ...(data.thread || [])].filter(Boolean);
+        body.innerHTML = `<article class="deliverable-document"><header class="document-heading"><p class="eyebrow">X draft / ${posts.length} post${posts.length === 1 ? "" : "s"}</p></header>
+            <ol class="x-thread">${posts.map((post,index) => `<li><div class="x-post"><div class="publication-copy" data-publishable="twitter">${escapeHtml(post)}</div><footer>Post ${index+1} of ${posts.length}<span>${Array.from(post).length}/280 characters</span></footer></div></li>`).join("")}</ol>
+        </article>`;
     } else if (outputKey === "summary") {
-        const takeawaysHtml = (data.key_takeaways || []).map((kt, i) => `
-            <div style="background:#f8fafc;border-left:3px solid #2563eb;padding:10px 14px;margin-bottom:8px;border-radius:0 8px 8px 0;font-size:11px;color:#1e293b;line-height:1.5;">
-                <strong>Takeaway ${i + 1}:</strong> ${escapeHtml(kt)}
-            </div>
-        `).join('');
-
-        const actionsHtml = (data.recommended_actions || []).map((ra, i) => `
-            <tr>
-                <td style="padding:10px;border-bottom:1px solid #edf2f7;font-size:11px;font-weight:600;color:#1e293b;">${i + 1}. ${escapeHtml(ra.action || '')}</td>
-                <td style="padding:10px;border-bottom:1px solid #edf2f7;font-size:10px;">
-                    <span style="background:${ra.priority === 'HIGH' ? '#fee2e2' : '#e0f2fe'};color:${ra.priority === 'HIGH' ? '#b91c1c' : '#0369a1'};font-weight:700;padding:2px 8px;border-radius:10px;">${escapeHtml(ra.priority || 'MEDIUM')}</span>
-                </td>
-                <td style="padding:10px;border-bottom:1px solid #edf2f7;font-size:10px;color:#64748b;font-weight:600;">${escapeHtml(ra.timeline || 'short-term')}</td>
-            </tr>
-        `).join('');
-
-        body.innerHTML = `
-            <div style="max-width:880px;margin:0 auto;text-align:left;">
-                <!-- Executive Header Card -->
-                <div style="background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;border-radius:10px;padding:20px 24px;margin-bottom:16px;">
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;">
-                        <span style="font-size:10px;font-weight:700;background:rgba(255,255,255,0.15);padding:3px 10px;border-radius:12px;text-transform:uppercase;letter-spacing:0.5px;">Executive Briefing</span>
-                        ${data.priority ? `<span style="background:#e11d48;color:#fff;font-weight:700;font-size:10px;padding:3px 10px;border-radius:12px;">Priority: ${escapeHtml(data.priority)}</span>` : ''}
-                    </div>
-                    <div style="font-weight:700;font-size:18px;line-height:1.4;margin-bottom:6px;">${escapeHtml(data.headline || 'Executive Briefing & Strategic Overview')}</div>
-                </div>
-
-                <!-- Key Takeaways Grid -->
-                <div style="margin-bottom:18px;">
-                    <strong style="font-size:12px;color:#334155;text-transform:uppercase;display:block;margin-bottom:8px;">Strategic Takeaways</strong>
-                    ${takeawaysHtml}
-                </div>
-
-                <!-- Context & Findings Grid -->
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:16px;">
-                    ${data.context ? `
-                        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
-                            <strong style="font-size:11px;color:#2563eb;text-transform:uppercase;display:block;margin-bottom:6px;">Situation & Context</strong>
-                            <div style="font-size:11px;color:#475569;line-height:1.55;">${escapeHtml(data.context)}</div>
-                        </div>
-                    ` : ''}
-                    ${data.business_impact ? `
-                        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
-                            <strong style="font-size:11px;color:#059669;text-transform:uppercase;display:block;margin-bottom:6px;">Business Impact</strong>
-                            <div style="font-size:11px;color:#475569;line-height:1.55;">${escapeHtml(data.business_impact)}</div>
-                        </div>
-                    ` : ''}
-                </div>
-
-                <!-- Major Findings & Risks -->
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:16px;">
-                    ${data.major_findings && data.major_findings.length ? `
-                        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
-                            <strong style="font-size:11px;color:#475569;text-transform:uppercase;display:block;margin-bottom:6px;">Major Findings</strong>
-                            ${data.major_findings.map(mf => '<div style="font-size:11px;color:#334155;margin-bottom:4px;">• ' + escapeHtml(mf) + '</div>').join('')}
-                        </div>
-                    ` : ''}
-                    ${data.risks && data.risks.length ? `
-                        <div style="background:#fff;border:1px solid #fed7aa;background:#fffaf5;border-radius:8px;padding:14px;">
-                            <strong style="font-size:11px;color:#ea580c;text-transform:uppercase;display:block;margin-bottom:6px;">⚠️ Key Risks</strong>
-                            ${data.risks.map(r => '<div style="font-size:11px;color:#9a3412;margin-bottom:4px;">• ' + escapeHtml(r) + '</div>').join('')}
-                        </div>
-                    ` : ''}
-                </div>
-
-                <!-- Recommended Actions Table -->
-                ${actionsHtml ? `
-                    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:16px;">
-                        <strong style="font-size:12px;color:#1e293b;text-transform:uppercase;display:block;margin-bottom:10px;">Recommended Action Plan</strong>
-                        <table style="width:100%;border-collapse:collapse;">
-                            <thead>
-                                <tr style="background:#f8fafc;color:#64748b;font-size:10px;text-align:left;">
-                                    <th style="padding:8px 10px;">Action Item</th>
-                                    <th style="padding:8px 10px;">Priority</th>
-                                    <th style="padding:8px 10px;">Timeline</th>
-                                </tr>
-                            </thead>
-                            <tbody>${actionsHtml}</tbody>
-                        </table>
-                    </div>
-                ` : ''}
-
-                ${data.conclusion ? `
-                    <div style="background:#f1f5f9;border-radius:8px;padding:12px 16px;font-size:11px;color:#334155;line-height:1.5;">
-                        <strong>Conclusion:</strong> ${escapeHtml(data.conclusion)}
-                    </div>
-                ` : ''}
-            </div>
-        `;
+        body.innerHTML = `<article class="deliverable-document">
+            <header class="document-heading"><p class="eyebrow">Executive summary</p><h2>${escapeHtml(data.headline)}</h2>
+            ${data.priority && data.priority !== "UNSPECIFIED" ? `<p>Priority: ${escapeHtml(data.priority)}</p>` : ""}</header>
+            ${outputSection("At a glance", data.key_takeaways)}
+            ${outputSection("Context", data.context)}
+            ${outputSection("Findings and evidence", data.major_findings)}
+            ${outputSection("Organizational impact", data.business_impact)}
+            ${outputSection("Risks and limitations", data.risks)}
+            ${outputSection("Decisions required", data.decisions_required)}
+            ${data.recommended_actions?.length ? `<section class="output-section"><h3>Recommended actions</h3><ol>${data.recommended_actions.map(a => `<li>${escapeHtml(a.action)}${a.priority && a.priority !== "UNSPECIFIED" ? ` <small>Priority: ${escapeHtml(a.priority)}</small>` : ""}${a.timeline && a.timeline !== "UNSPECIFIED" ? ` <small>Timing: ${escapeHtml(a.timeline)}</small>` : ""}</li>`).join("")}</ol></section>` : ""}
+            ${outputSection("Outlook", data.conclusion)}
+        </article>`;
     } else if (outputKey === "infographic") {
-        const statsHtml = (data.key_statistics || []).map(ks => `
-            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.03);">
-                <div style="font-size:24px;font-weight:800;color:#2563eb;margin-bottom:4px;">${escapeHtml(ks.value || '')}</div>
-                <div style="font-size:11px;font-weight:600;color:#1e293b;line-height:1.4;">${escapeHtml(ks.label || '')}</div>
-                ${ks.source_reference ? `<div style="font-size:9px;color:#94a3b8;margin-top:4px;">Ref: ${escapeHtml(ks.source_reference)}</div>` : ''}
-            </div>
-        `).join('');
-
-        const messagesHtml = (data.key_messages || []).map((km, i) => `
-            <div style="background:#eff6ff;border-left:3px solid #3b82f6;border-radius:0 8px 8px 0;padding:8px 12px;margin-bottom:6px;font-size:11px;color:#1e40af;">
-                <strong>${i + 1}.</strong> ${escapeHtml(km)}
-            </div>
-        `).join('');
-
-        const sectionsHtml = (data.sections || []).map(sec => `
-            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                    <strong style="font-size:12px;color:#1e293b;">${escapeHtml(sec.section_title || '')}</strong>
-                    <span style="font-size:9px;font-weight:700;background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:10px;text-transform:uppercase;">${escapeHtml(sec.visual_element || 'visual')}</span>
-                </div>
-                <div style="font-size:11px;color:#475569;line-height:1.55;margin-bottom:8px;">${escapeHtml(sec.content || '')}</div>
-                ${sec.data_points && sec.data_points.length ? `
-                    <div style="background:#f8fafc;border-radius:6px;padding:6px 10px;">
-                        ${sec.data_points.map(dp => '<div style="font-size:10px;color:#64748b;">• ' + escapeHtml(dp) + '</div>').join('')}
-                    </div>
-                ` : ''}
-            </div>
-        `).join('');
-
-        const colors = data.color_recommendations || {};
-
-        body.innerHTML = `
-            <div style="max-width:880px;margin:0 auto;text-align:left;">
-                <!-- Infographic Title Banner -->
-                <div style="background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;border-radius:10px;padding:20px;text-align:center;margin-bottom:16px;">
-                    <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;opacity:0.85;margin-bottom:4px;">Visual Infographic Blueprint</div>
-                    <div style="font-size:20px;font-weight:800;margin-bottom:6px;">${escapeHtml(data.title || 'Executive Infographic Architecture')}</div>
-                    ${data.subtitle ? `<div style="font-size:12px;opacity:0.9;">${escapeHtml(data.subtitle)}</div>` : ''}
-                </div>
-
-                <!-- Key Statistics Row -->
-                ${statsHtml ? `
-                    <div style="margin-bottom:16px;">
-                        <strong style="font-size:11px;color:#475569;text-transform:uppercase;display:block;margin-bottom:8px;">Core Data Anchors & Metrics</strong>
-                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">${statsHtml}</div>
-                    </div>
-                ` : ''}
-
-                <!-- Key Messaging -->
-                ${messagesHtml ? `
-                    <div style="margin-bottom:16px;">
-                        <strong style="font-size:11px;color:#475569;text-transform:uppercase;display:block;margin-bottom:6px;">Core Messaging Pillars</strong>
-                        ${messagesHtml}
-                    </div>
-                ` : ''}
-
-                <!-- Visual Sections -->
-                ${sectionsHtml ? `
-                    <div style="margin-bottom:16px;">
-                        <strong style="font-size:11px;color:#475569;text-transform:uppercase;display:block;margin-bottom:8px;">Infographic Visual Sections</strong>
-                        ${sectionsHtml}
-                    </div>
-                ` : ''}
-
-                <!-- Design & Palette Specifications -->
-                <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:14px;">
-                    <strong style="font-size:11px;color:#1e293b;text-transform:uppercase;display:block;margin-bottom:8px;">Design & Color Palette</strong>
-                    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
-                        ${colors.primary ? `<div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:20px;border-radius:4px;background:${colors.primary};border:1px solid #ccc;"></div><span style="font-size:10px;font-family:monospace;">${colors.primary} (Primary)</span></div>` : ''}
-                        ${colors.secondary ? `<div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:20px;border-radius:4px;background:${colors.secondary};border:1px solid #ccc;"></div><span style="font-size:10px;font-family:monospace;">${colors.secondary} (Secondary)</span></div>` : ''}
-                        ${colors.accent ? `<div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:20px;border-radius:4px;background:${colors.accent};border:1px solid #ccc;"></div><span style="font-size:10px;font-family:monospace;">${colors.accent} (Accent)</span></div>` : ''}
-                    </div>
-                    ${colors.rationale ? `<div style="font-size:10px;color:#64748b;line-height:1.4;">Rationale: ${escapeHtml(colors.rationale)}</div>` : ''}
-                    ${data.layout ? `<div style="font-size:10px;color:#334155;margin-top:6px;"><strong>Recommended Layout:</strong> ${escapeHtml(data.layout)}</div>` : ''}
-                </div>
-            </div>
-        `;
+        body.innerHTML = `<article class="deliverable-document infographic-document"><header class="document-heading"><p class="eyebrow">In focus</p><h2>${escapeHtml(data.title)}</h2><p>${escapeHtml(data.subtitle || "")}</p></header>
+            ${data.key_statistics?.length ? `<div class="info-metrics">${data.key_statistics.map(s => `<article><strong>${escapeHtml(s.value)}</strong><h3>${escapeHtml(s.label)}</h3>${s.source_reference ? `<p>${escapeHtml(s.source_reference)}</p>` : ""}</article>`).join("")}</div>` : ""}
+            ${(data.sections || []).map((s,index) => `<section class="info-section"><span class="info-index">${String(index+1).padStart(2,"0")}</span><div><h3>${escapeHtml(s.section_title)}</h3><p>${escapeHtml(s.content || "")}</p>${s.data_points?.length ? `<ol class="${s.visual_element === "timeline" ? "info-timeline" : "info-points"}">${s.data_points.map(p => `<li>${escapeHtml(p)}</li>`).join("")}</ol>` : ""}</div></section>`).join("")}
+            ${outputSection("What this means",data.key_messages)}
+        </article>`;
     } else {
         // Generic structured display fallback
         body.innerHTML = `<div class="subtitle" style="max-width:900px;text-align:left;white-space:pre-wrap;">
             ${typeof data === 'string' ? escapeHtml(data) : formatObject(data)}</div>`;
     }
+}
+
+function outputSection(title, value) {
+    const present = item => typeof item === "string" && item.trim() && item.trim() !== "Not available in source.";
+    const items = Array.isArray(value) ? value.filter(present) : [];
+    if (!items.length && !present(value)) return "";
+    return `<section class="output-section">${title ? `<h3>${escapeHtml(title)}</h3>` : ""}${Array.isArray(value) ? `<ul>${items.map(v => `<li>${escapeHtml(v)}</li>`).join("")}</ul>` : `<p>${escapeHtml(value)}</p>`}</section>`;
+}
+
+function publishableText(key, data) {
+    if (key === "linkedin") return data.post || "";
+    if (key === "twitter") return [data.primary_post, ...(data.thread || [])].filter(Boolean).join("\n\n");
+    return formatDeliverableAsMarkdown(key, data);
 }
 
 function formatObject(obj) {
@@ -2315,17 +2092,19 @@ function downloadVideoScript() {
 
 document.getElementById("generateBtn").addEventListener("click", async () => {
     const n = checks.filter(c => c.checked).length;
+    if (isGenerating) return;
+    document.getElementById("inputError").hidden = true;
     const hasText = sourceText.value.trim().length > 0;
     const hasFiles = uploadedFiles.length > 0;
 
     if (!hasText && !hasFiles) {
-        showToast("Please add source content first.");
+        showInputError("Please add source content first.");
         scrollToId("source");
         return;
     }
 
     if (!n) {
-        showToast("Select at least one output format.");
+        showInputError("Select at least one output format.");
         scrollToId("outputs");
         return;
     }
@@ -2335,6 +2114,8 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
 
     isGenerating = true;
     setFormatHubLocked(true);
+    lockInputs(true);
+    pauseVideo();
     btn.disabled = true;
     btn.innerHTML = `⚙ &nbsp; Synthesizing Deliverables...`;
     startProgressTimer(n);
@@ -2354,9 +2135,10 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
             formData.append("detail", document.getElementById("detail")?.value || "");
             formData.append("objective", document.getElementById("objective")?.value || "");
             formData.append("output_format", selectedOutputs.join(", "));
+            formData.append("content_type", document.getElementById("contentType").value);
             uploadedFiles.forEach(f => formData.append("files", f));
 
-            response = await fetch(`${API_BASE}/api/generate`, {
+            response = await apiFetch(`${API_BASE}/api/generate`, {
                 method: "POST",
                 body: formData
             });
@@ -2364,6 +2146,7 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
             // Text-only: use JSON
             const requestData = {
                 source: sourceText.value.trim(),
+                content_type: document.getElementById("contentType").value,
                 audience: document.getElementById("audience")?.value || "",
                 tone: document.getElementById("tone")?.value || "",
                 language: document.getElementById("language")?.value || "",
@@ -2372,7 +2155,7 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
                 output_format: selectedOutputs.join(", ")
             };
 
-            response = await fetch(`${API_BASE}/api/generate`, {
+            response = await apiFetch(`${API_BASE}/api/generate`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(requestData)
@@ -2385,7 +2168,8 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
         }
 
         const result = await response.json();
-        console.log("BACKEND RESULT:", result);
+        if (!result.success || !Object.keys(result.outputs || {}).length) throw new Error("No usable results were returned. Please retry.");
+        document.getElementById("resultNotice").textContent = [result.metadata?.content_type, ...(result.metadata?.warnings || [])].filter(Boolean).join(" | ");
 
         generatedOutput = result.output || "";
         generatedOutputs = result.outputs || {};
@@ -2412,7 +2196,7 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
         renderOutput(targetNavKey);
 
         document.getElementById("generatedStatus").textContent =
-            `${n} Output Format${n === 1 ? "" : "s"} Generated`;
+            `${Object.keys(generatedOutputs).length} Outputs Generated`;
 
         // Enable download and copy buttons
         const dlCurr = document.getElementById("downloadCurrentBtn");
@@ -2441,22 +2225,22 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
         const banner = document.getElementById("outputSuccessBanner");
         if (banner) banner.style.display = "flex";
 
-        // 3. Reset source inputs so user can easily add another file or text
-        sourceText.value = "";
-        sourceInput.value = "";
-        sourceFiles.innerHTML = "";
-        uploadedFiles = [];
-        updateCount();
-
-        showToast("Deliverables ready! Source reset for next upload.");
+        document.querySelectorAll(".output-nav button[data-output]").forEach(button => {
+            button.disabled = !generatedOutputs[OUTPUT_KEY_MAP[button.dataset.output]];
+        });
+        showToast("Deliverables ready.");
 
     } catch (error) {
-        console.error("GENERATION ERROR:", error);
+
         stopProgressTimer();
-        showToast(error.message || "Could not generate content. Ensure backend is running.");
+        document.getElementById("processingCard").style.display = "none";
+        showInputError(error.name === "AbortError" || error.name === "TimeoutError"
+            ? "Processing timed out. Your source is retained; retry with a shorter excerpt."
+            : error.message === "Failed to fetch" ? "Backend unavailable. Start the server and retry." : error.message);
     } finally {
         isGenerating = false;
         setFormatHubLocked(false);
+        lockInputs(false);
         btn.disabled = false;
         const currentCount = checks.filter(c => c.checked).length;
         btn.innerHTML = `✧ &nbsp; Generate <span id="generateCount">${currentCount}</span> Selected Deliverables`;
@@ -2482,7 +2266,8 @@ function copyPreview(){
         showToast("Please generate content first.");
         return;
     }
-    const text=document.getElementById("previewTitle").textContent+"\n\n"+document.getElementById("previewBody").innerText;
+    const key = getActiveFormatKey();
+    const text = publishableText(key, generatedOutputs[OUTPUT_KEY_MAP[key]] || {});
     navigator.clipboard?.writeText(text).then(()=>showToast("Output copied to clipboard.")).catch(()=>showToast("Copy is not available in this browser."));
 }
 function downloadFile(filename, text, mimeType = "text/plain;charset=utf-8") {
@@ -2578,29 +2363,14 @@ function formatDeliverableAsMarkdown(outputKey, data) {
     }
 
     if (outputKey === "linkedin") {
-        let md = `## LinkedIn Post\n\n`;
-        md += `**Hook:** ${data.hook || ''}\n\n`;
-        md += `${data.post || ''}\n\n`;
-        if (data.hashtags && data.hashtags.length) md += `${data.hashtags.join(' ')}\n\n`;
-        if (data.carousel_slides && data.carousel_slides.length) {
-            md += `### Carousel Messaging\n\n`;
-            data.carousel_slides.forEach(c => {
-                md += `**Slide ${c.slide_number}:** ${c.headline}\n${c.body}\n\n`;
-            });
+        let md = data.post || "";
+        if (data.carousel_slides?.length) {
+            md += "\n\n## Companion carousel\n\n" + data.carousel_slides.map((s,i) => `### Slide ${i+1}: ${s.headline}\n${s.body}`).join("\n\n");
         }
         return md;
     }
+    if (outputKey === "twitter") return publishableText("twitter", data);
 
-    if (outputKey === "twitter") {
-        let md = `## Twitter / X Post Series\n\n`;
-        md += `**Primary Tweet:**\n${data.primary_post || ''}\n\n`;
-        if (data.thread && data.thread.length) {
-            md += `### Thread\n\n`;
-            data.thread.forEach((t, i) => md += `${i+1}/ ${t}\n\n`);
-        }
-        if (data.hashtags && data.hashtags.length) md += `Hashtags: ${data.hashtags.join(' ')}\n`;
-        return md;
-    }
 
     return `# ${OUTPUT_TITLES[outputKey] || outputKey}\n\n` + JSON.stringify(data, null, 2);
 }
@@ -2645,12 +2415,12 @@ function startProgressTimer(selectedCount) {
         } else if (passed < 22) {
             bar.style.width = `${34 + (passed - 8) * 3}%`;
             stage.textContent = "Extracting Content Intelligence...";
-            detail.textContent = "Step 2 of 3: Extracting verified facts, timeline & named entities...";
+            detail.textContent = "Preparing source passages and checking output structure...";
         } else {
             const extra = Math.min(94, 76 + (passed - 22) * 0.8);
             bar.style.width = `${extra}%`;
             stage.textContent = `Synthesizing ${selectedCount} Deliverables in Parallel...`;
-            detail.textContent = "Step 3 of 3: Generating tailored outputs via NVIDIA NIM AI...";
+            detail.textContent = "Generating tailored drafts. A fallback provider may be used if needed...";
         }
     }, 1000);
 }
@@ -2689,7 +2459,7 @@ async function downloadCurrentDeliverable() {
     if (outputKey === "presentation") {
         showToast("Generating PowerPoint presentation (.pptx)...");
         try {
-            const resp = await fetch(`${API_BASE}/api/export`, {
+            const resp = await apiFetch(`${API_BASE}/api/export`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ format_type: "presentation_deck", data: data })
@@ -2716,7 +2486,7 @@ async function downloadCurrentDeliverable() {
     if (outputKey === "advisory") {
         showToast("Generating Cyber Advisory PDF (.pdf)...");
         try {
-            const resp = await fetch(`${API_BASE}/api/export`, {
+            const resp = await apiFetch(`${API_BASE}/api/export`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ format_type: "advisory_document", data: data })
@@ -2743,7 +2513,7 @@ async function downloadCurrentDeliverable() {
     if (outputKey === "summary") {
         showToast("Generating Executive Briefing PDF (.pdf)...");
         try {
-            const resp = await fetch(`${API_BASE}/api/export`, {
+            const resp = await apiFetch(`${API_BASE}/api/export`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ format_type: "executive_summary", data: data })
@@ -2779,7 +2549,7 @@ async function downloadCurrentDeliverable() {
     // 5. Infographic -> Visual Interactive HTML (.html)
     if (outputKey === "infographic") {
         try {
-            const resp = await fetch(`${API_BASE}/api/export`, {
+            const resp = await apiFetch(`${API_BASE}/api/export`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ format_type: "infographic", data: data })
@@ -2793,38 +2563,12 @@ async function downloadCurrentDeliverable() {
         } catch (e) {}
     }
 
-    // 6. LinkedIn & Twitter -> Plain text publication copy (.txt)
+    // Social exports contain only the publishable copy, not duplicate metadata.
     if (outputKey === "linkedin" || outputKey === "twitter") {
-        let textContent = "";
-        if (outputKey === "linkedin") {
-            let parts = [];
-            if (data.hook) parts.push(`--- HOOK ---\n${data.hook}`);
-            if (data.post) parts.push(`--- POST BODY ---\n${data.post}`);
-            if (data.key_insights && data.key_insights.length) {
-                parts.push(`--- KEY INSIGHTS ---\n` + data.key_insights.map(ki => `• ${ki}`).join('\n'));
-            }
-            if (data.cta) parts.push(`--- CALL TO ACTION ---\n${data.cta}`);
-            if (data.hashtags && data.hashtags.length) parts.push(`--- HASHTAGS ---\n${data.hashtags.join(' ')}`);
-            if (data.carousel_slides && data.carousel_slides.length) {
-                parts.push(`--- CAROUSEL SLIDES (for PDF/Image Carousels) ---\n` + data.carousel_slides.map((s, i) => `[Slide ${s.slide_number || i+1}] ${s.headline || ''}\n${s.body || ''}`).join('\n\n'));
-            }
-            textContent = parts.join('\n\n');
-        } else {
-            let parts = [];
-            if (data.primary_post) parts.push(`--- PRIMARY TWEET (${(data.primary_post || '').length}/280 chars) ---\n${data.primary_post}`);
-            if (data.thread && data.thread.length) {
-                parts.push(`--- THREAD SERIES (${data.thread.length} tweets) ---\n` + data.thread.map((t, i) => `${i + 1}/ ${t}`).join('\n\n'));
-            }
-            if (data.key_indicators && data.key_indicators.length) {
-                parts.push(`--- KEY INDICATORS ---\n` + data.key_indicators.map(ki => `• ${ki}`).join('\n'));
-            }
-            if (data.cta) parts.push(`--- CALL TO ACTION ---\n${data.cta}`);
-            if (data.hashtags && data.hashtags.length) parts.push(`--- HASHTAGS ---\n${data.hashtags.join(' ')}`);
-            textContent = parts.join('\n\n');
-        }
-        downloadFile(`${title.replace(/[\s\/]/g, '_')}_copy.txt`, textContent, "text/plain;charset=utf-8");
+        downloadFile(outputKey + "_post.txt", publishableText(outputKey, data), "text/plain;charset=utf-8");
         return;
     }
+
 
     // Default Fallback
     const markdown = formatDeliverableAsMarkdown(outputKey, data);
@@ -2847,7 +2591,7 @@ async function downloadAllDeliverables() {
         // 1. Presentation .pptx
         if (generatedOutputs["presentation_deck"]) {
             try {
-                const r = await fetch(`${API_BASE}/api/export`, {
+                const r = await apiFetch(`${API_BASE}/api/export`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ format_type: "presentation_deck", data: generatedOutputs["presentation_deck"] })
@@ -2859,7 +2603,7 @@ async function downloadAllDeliverables() {
         // 2. Advisory .pdf
         if (generatedOutputs["advisory_document"]) {
             try {
-                const r = await fetch(`${API_BASE}/api/export`, {
+                const r = await apiFetch(`${API_BASE}/api/export`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ format_type: "advisory_document", data: generatedOutputs["advisory_document"] })
@@ -2871,7 +2615,7 @@ async function downloadAllDeliverables() {
         // 3. Executive Summary .pdf
         if (generatedOutputs["executive_summary"]) {
             try {
-                const r = await fetch(`${API_BASE}/api/export`, {
+                const r = await apiFetch(`${API_BASE}/api/export`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ format_type: "executive_summary", data: generatedOutputs["executive_summary"] })
@@ -2883,7 +2627,7 @@ async function downloadAllDeliverables() {
         // 4. Infographic .html
         if (generatedOutputs["infographic"]) {
             try {
-                const r = await fetch(`${API_BASE}/api/export`, {
+                const r = await apiFetch(`${API_BASE}/api/export`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ format_type: "infographic", data: generatedOutputs["infographic"] })
@@ -2899,34 +2643,14 @@ async function downloadAllDeliverables() {
             folder.file("Video_Script.txt", vp.script || "");
         }
 
-        // 6. Social Posts
-        if (generatedOutputs["linkedin_post"]) {
-            const lp = generatedOutputs["linkedin_post"];
-            let lpParts = [];
-            if (lp.hook) lpParts.push(`--- HOOK ---\n${lp.hook}`);
-            if (lp.post) lpParts.push(`--- POST BODY ---\n${lp.post}`);
-            if (lp.key_insights && lp.key_insights.length) lpParts.push(`--- KEY INSIGHTS ---\n` + lp.key_insights.map(ki => `• ${ki}`).join('\n'));
-            if (lp.cta) lpParts.push(`--- CALL TO ACTION ---\n${lp.cta}`);
-            if (lp.hashtags && lp.hashtags.length) lpParts.push(`--- HASHTAGS ---\n${lp.hashtags.join(' ')}`);
-            if (lp.carousel_slides && lp.carousel_slides.length) {
-                lpParts.push(`--- CAROUSEL SLIDES (for PDF/Image Carousels) ---\n` + lp.carousel_slides.map((s, i) => `[Slide ${s.slide_number || i+1}] ${s.headline || ''}\n${s.body || ''}`).join('\n\n'));
-            }
-            folder.file("LinkedIn_Post.txt", lpParts.join('\n\n'));
+        // Keep companion carousel notes separate from the publication copy.
+        if (generatedOutputs.linkedin_post) {
+            const lp = generatedOutputs.linkedin_post;
+            folder.file("LinkedIn_Post.txt", publishableText("linkedin", lp));
+            if (lp.carousel_slides?.length) folder.file("LinkedIn_Carousel.txt", lp.carousel_slides.map((s,i) => `Slide ${i+1}: ${s.headline}\n${s.body}`).join("\n\n"));
         }
-        if (generatedOutputs["twitter_post"]) {
-            const tp = generatedOutputs["twitter_post"];
-            let tpParts = [];
-            if (tp.primary_post) tpParts.push(`--- PRIMARY TWEET (${(tp.primary_post || '').length}/280 chars) ---\n${tp.primary_post}`);
-            if (tp.thread && tp.thread.length) {
-                tpParts.push(`--- THREAD SERIES (${tp.thread.length} tweets) ---\n` + tp.thread.map((t, i) => `${i + 1}/ ${t}`).join('\n\n'));
-            }
-            if (tp.key_indicators && tp.key_indicators.length) {
-                tpParts.push(`--- KEY INDICATORS ---\n` + tp.key_indicators.map(ki => `• ${ki}`).join('\n'));
-            }
-            if (tp.cta) tpParts.push(`--- CALL TO ACTION ---\n${tp.cta}`);
-            if (tp.hashtags && tp.hashtags.length) tpParts.push(`--- HASHTAGS ---\n${tp.hashtags.join(' ')}`);
-            folder.file("Twitter_Thread.txt", tpParts.join('\n\n'));
-        }
+        if (generatedOutputs.twitter_post) folder.file("X_Posts.txt", publishableText("twitter", generatedOutputs.twitter_post));
+
 
         // 7. Combined text & raw JSON
         folder.file("ALL_DELIVERABLES_COMBINED.md", generatedOutput);
@@ -2968,7 +2692,10 @@ function startNewTransformation() {
 }
 
 function clearSource(){
+    if (isGenerating) return;
     sourceText.value = "";
+    document.getElementById("samplePicker").value = "";
+    document.getElementById("inputError").hidden = true;
     updateCount();
     sourceInput.value = "";
     sourceFiles.innerHTML = "";
@@ -2976,6 +2703,61 @@ function clearSource(){
     dropZone.classList.remove("dragging");
     showToast("Source cleared.");
 }
+
+function showInputError(message) {
+    const el = document.getElementById("inputError");
+    el.textContent = message || "Processing failed. Please retry.";
+    el.hidden = false;
+    showToast(el.textContent);
+}
+function lockInputs(locked) {
+    document.querySelectorAll("#source input,#source textarea,#source select,#source button,#parameters select").forEach(el => el.disabled = locked);
+}
+const nativeFetch = window.fetch.bind(window);
+async function apiFetch(url, options = {}) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 180000);
+    try { return await nativeFetch(url, {...options, signal: controller.signal}); }
+    finally { clearTimeout(timer); }
+}
+async function loadDemoOptions() {
+    try {
+        const health = await apiFetch("/api/health");
+        if (!health.ok) throw new Error();
+        const status = await health.json();
+        document.getElementById("engineState").textContent = status.demo_mode ? "Offline extractive mode" : status.configuration_notice || "AI provider configured";
+        if (status.demo_mode) {
+            const language = document.getElementById("language");
+            [...language.options].forEach(option => option.disabled = option.value !== "English");
+        }
+        const response = await apiFetch("/api/samples");
+        if (!response.ok) throw new Error();
+        const samples = await response.json();
+        const picker = document.getElementById("samplePicker");
+        samples.forEach(sample => {
+            const option = document.createElement("option");
+            option.value = sample.id; option.textContent = sample.content_type;
+            picker.append(option);
+        });
+        picker.addEventListener("change", () => {
+            const sample = samples.find(s => s.id === picker.value);
+            if (!sample || isGenerating) return;
+            sourceText.value = sample.content; uploadedFiles = []; renderFiles();
+            document.getElementById("contentType").value = sample.content_type;
+            document.getElementById("inputError").hidden = true;
+            updateCount();
+        });
+    } catch {
+        document.getElementById("engineState").textContent = "Backend unavailable";
+        showInputError("Could not connect to the backend. Run the FastAPI server and refresh.");
+    }
+}
+document.getElementById("audience").value = "General Public";
+document.getElementById("tone").value = "Professional";
+document.getElementById("detail").value = "Standard";
+document.getElementById("objective").value = "Inform";
+loadDemoOptions();
+
 </script>
 </body>
 </html>

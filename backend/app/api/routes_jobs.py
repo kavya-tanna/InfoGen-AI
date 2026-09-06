@@ -1,31 +1,23 @@
-"""
-api/routes_jobs.py
-──────────────────
-GET /api/jobs/{job_id}  — placeholder for async job tracking.
-GET /api/outputs/{job_id} — placeholder for retrieving outputs.
-"""
-from fastapi import APIRouter
-from fastapi.responses import JSONResponse
+"""Read completed jobs and their persisted outputs."""
+from fastapi import APIRouter, HTTPException
+from app.models.database import SessionLocal, GenerationJob
 
 router = APIRouter()
 
 
 @router.get("/api/jobs/{job_id}")
-async def get_job(job_id: str):
-    """Get job status. Currently synchronous — returns completed for any valid ID."""
-    return {
-        "success": True,
-        "job_id": job_id,
-        "status": "completed",
-        "message": "Synchronous mode — job completed with the generation response.",
-    }
+def job_status(job_id: str):
+    with SessionLocal() as db:
+        job = db.get(GenerationJob, job_id)
+        if not job:
+            raise HTTPException(404, "Job not found")
+        return {"job_id": job.id, "status": job.status, "provider": job.ai_provider}
 
 
 @router.get("/api/outputs/{job_id}")
-async def get_outputs(job_id: str):
-    """Get job outputs. Currently returns a placeholder — outputs are in the generate response."""
-    return {
-        "success": True,
-        "job_id": job_id,
-        "message": "Outputs were returned in the /api/generate response. Persistent storage coming in async mode.",
-    }
+def job_outputs(job_id: str):
+    with SessionLocal() as db:
+        job = db.get(GenerationJob, job_id)
+        if not job:
+            raise HTTPException(404, "Job not found")
+        return {"job_id": job.id, "outputs": {o.format_type: o.content_json for o in job.outputs}}
