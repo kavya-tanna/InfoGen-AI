@@ -1,0 +1,2979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InfoGen AI — Content Transformation Platform</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+    --bg:#f7f8fa;
+    --white:#ffffff;
+    --text:#26354a;
+    --muted:#718096;
+    --border:#e5e9ef;
+    --primary:#50627a;
+    --primary-dark:#344256;
+    --soft:#eef2f6;
+    --blue:#5b7cfa;
+    --shadow:0 8px 30px rgba(38,53,74,.05);
+}
+
+html{scroll-behavior:smooth}
+body{
+    font-family:"DM Sans",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+}
+button,input,select,textarea{font:inherit}
+
+.app{min-height:100vh}
+
+.topbar{
+    position:sticky;
+    top:0;
+    z-index:100;
+    min-height:76px;
+    background:rgba(255,255,255,.96);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    gap:22px;
+    padding:10px max(22px,calc((100% - 1180px)/2));
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    min-width:285px;
+}
+.brand-icon{
+    width:40px;height:40px;border-radius:11px;
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid #8ca1ba;
+    color:var(--primary-dark);
+    background:var(--soft);
+    font-size:23px;
+}
+.brand-copy{line-height:1.05}
+.brand-name{
+    font-size:20px;font-weight:700;letter-spacing:-.5px;
+}
+.ai-badge{
+    display:inline-block;
+    margin-left:5px;
+    padding:3px 7px;
+    border:1px solid #c8d3df;
+    border-radius:5px;
+    color:#526783;
+    background:#f3f6f9;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.3px;
+    vertical-align:middle;
+}
+.brand-sub{
+    margin-top:5px;
+    color:var(--muted);
+    font-size:11px;
+    line-height:1.15;
+}
+
+.header-controls{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:10px;
+    flex:1;
+}
+.preset-bar{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    padding:4px;
+    border:1px solid var(--border);
+    background:#fbfcfd;
+    border-radius:10px;
+}
+.preset-btn{
+    border:0;
+    background:transparent;
+    color:#66758a;
+    padding:8px 12px;
+    border-radius:7px;
+    cursor:pointer;
+    font-size:11px;
+    font-weight:600;
+}
+.preset-btn:hover{background:var(--soft)}
+.preset-btn.active{
+    background:#edf2f7;
+    color:#2f4158;
+    box-shadow:0 2px 8px rgba(38,53,74,.08);
+}
+.engine-status{
+    min-width:145px;
+    padding:10px 14px;
+    border:1px solid #cbd9d1;
+    border-radius:22px;
+    background:#f4f8f6;
+    color:#4f7562;
+    font-size:11px;
+    text-align:center;
+    font-weight:600;
+}
+.engine-dot{
+    display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:#6c9a7d;margin-right:6px;
+}
+.eval-btn{
+    border:1px solid #7187a2;
+    background:var(--primary);
+    color:#fff;
+    border-radius:10px;
+    padding:10px 15px;
+    cursor:pointer;
+    font-size:11px;
+    font-weight:700;
+    line-height:1.2;
+}
+.eval-btn:hover{background:var(--primary-dark)}
+.eval-btn small{display:block;opacity:.72;font-size:9px;font-weight:500;margin-top:2px}
+
+.page{
+    width:min(1180px,calc(100% - 36px));
+    margin:0 auto;
+    padding:26px 0 55px;
+}
+
+.hero{
+    background:var(--white);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:34px 38px 27px;
+    box-shadow:var(--shadow);
+    margin-bottom:22px;
+    overflow:hidden;
+    position:relative;
+}
+.hero:after{
+    content:"";
+    position:absolute;
+    right:-110px;top:-130px;
+    width:300px;height:300px;
+    border-radius:50%;
+    background:rgba(91,124,250,.045);
+    pointer-events:none;
+}
+.hero h1{
+    font-family:"Playfair Display",serif;
+    font-size:35px;
+    line-height:1.18;
+    letter-spacing:-.8px;
+    color:#293a52;
+    margin-bottom:12px;
+    max-width:780px;
+}
+.hero p{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.65;
+    max-width:850px;
+}
+.hero-line{
+    height:1px;
+    background:#edf0f3;
+    margin:25px 0 20px;
+}
+.metrics{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+}
+.supported-format{
+    position:absolute;
+    top:34px;
+    right:38px;
+}
+.metric-label{
+    color:#7a8798;
+    font-size:10px;
+    margin-bottom:6px;
+}
+.metric-value{
+    color:#40536b;
+    font-size:17px;
+    font-weight:700;
+}
+.metric-value.blue{color:#4f70d7}
+.metric-value.green{color:#4e8464}
+
+.workflow{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+}
+.card{
+    background:var(--white);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:25px;
+    box-shadow:0 3px 15px rgba(30,45,65,.025);
+}
+.section-head{
+    display:flex;
+    align-items:flex-start;
+    gap:13px;
+    margin-bottom:20px;
+}
+.step{
+    width:30px;height:30px;
+    border-radius:50%;
+    flex:0 0 30px;
+    background:#526174;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:13px;
+    font-weight:700;
+}
+.section-head h2{
+    font-size:17px;
+    letter-spacing:-.2px;
+    margin-bottom:4px;
+}
+.section-head p{
+    color:var(--muted);
+    font-size:11px;
+    line-height:1.45;
+}
+.pill{
+    display:inline-block;
+    margin-left:7px;
+    padding:4px 8px;
+    border:1px solid #d7dee7;
+    border-radius:12px;
+    color:#64758a;
+    background:#f7f9fb;
+    font-size:9px;
+    font-weight:600;
+    vertical-align:2px;
+}
+
+.universal-source{
+    margin-top:14px;
+}
+
+.drop-zone{
+    border:2px dashed #cbd5e1;
+    border-radius:12px;
+    background:#fafbfd;
+    padding:35px 28px 25px;
+    text-align:center;
+    transition:.2s ease;
+    cursor:pointer;
+}
+
+.drop-zone:hover{
+    border-color:#78a0ff;
+    background:#f8faff;
+}
+
+.drop-zone.dragging{
+    border-color:#3e5fd3;
+    background:#f1f5ff;
+    transform:scale(1.005);
+}
+
+.drop-icon{
+    width:52px;
+    height:52px;
+    margin:0 auto 12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    background:#eef3ff;
+    color:#3e5fd3;
+    font-size:23px;
+}
+
+.drop-zone h3{
+    margin:0 0 7px;
+    color:var(--text);
+    font-size:18px;
+}
+
+.drop-main{
+    margin:0 0 6px;
+    color:var(--muted);
+    font-size:12px;
+}
+
+.drop-main button{
+    border:0;
+    background:none;
+    color:#3e5fd3;
+    font-weight:700;
+    cursor:pointer;
+    font-size:12px;
+}
+
+.drop-main button:hover{
+    text-decoration:underline;
+}
+
+.supported{
+    margin:0;
+    color:#8995a5;
+    font-size:10px;
+}
+
+.divider{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:22px 0 13px;
+    color:#9aa5b3;
+    font-size:9px;
+}
+
+.divider::before,
+.divider::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--border);
+}
+
+#sourceText{
+    width:100%;
+    min-height:110px;
+    resize:vertical;
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:13px;
+    outline:none;
+    color:var(--text);
+    background:#fff;
+    font-size:12px;
+    line-height:1.6;
+}
+
+#sourceText:focus{
+    border-color:#88a9ee;
+    box-shadow:0 0 0 3px rgba(91,124,250,.06);
+}
+
+.source-files{
+    margin-top:10px;
+    display:grid;
+    gap:7px;
+}
+
+.source-file{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#fff;
+}
+
+.file-type{
+    font-size:18px;
+}
+
+.file-details{
+    flex:1;
+    text-align:left;
+}
+
+.file-details strong{
+    display:block;
+    color:var(--text);
+    font-size:11px;
+}
+
+.file-details span{
+    display:block;
+    margin-top:2px;
+    color:#9aa5b3;
+    font-size:9px;
+}
+
+.file-status{
+    color:#29966a;
+    font-size:10px;
+    font-weight:700;
+}
+textarea{
+    width:100%;
+    min-height:165px;
+    resize:vertical;
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:15px;
+    outline:none;
+    color:var(--text);
+    background:#fff;
+    font-size:12px;
+    line-height:1.6;
+}
+textarea:focus{border-color:#88a9ee;box-shadow:0 0 0 3px rgba(91,124,250,.06)}
+.counter{
+    text-align:right;
+    font-size:9px;
+    color:#8995a5;
+    margin-top:-18px;
+    margin-right:10px;
+    position:relative;
+}
+.input-actions{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:15px;
+}
+.upload-box{
+    border:1px dashed #ccd5df;
+    border-radius:8px;
+    min-height:68px;
+    padding:12px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    color:#718198;
+    font-size:11px;
+    cursor:pointer;
+    background:#fcfdfe;
+    transition:.2s;
+}
+.upload-box:hover{background:#f8fafc;border-color:#91a5bc}
+.upload-icon{font-size:20px}
+.upload-box strong{color:#4e70d8}
+.file-info{font-size:9px;color:#9aa5b3;margin-top:3px}
+.link-row{
+    display:flex;gap:10px;
+}
+.link-row input{
+    flex:1;height:43px;
+    border:1px solid var(--border);border-radius:8px;
+    padding:0 13px;outline:none;color:var(--text);
+}
+.small-btn{
+    border:1px solid var(--border);
+    background:#fff;color:#53627a;
+    border-radius:8px;padding:0 15px;cursor:pointer;font-size:11px;font-weight:600;
+}
+.small-btn:hover{background:var(--soft)}
+
+.parameter-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+}
+.parameter{
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:15px;
+    background:#fcfdfe;
+}
+.parameter label{
+    display:flex;align-items:center;gap:8px;
+    color:#536177;font-size:11px;font-weight:600;
+    margin-bottom:9px;
+}
+.param-icon{font-size:15px;color:#61748b}
+select{
+    width:100%;height:39px;
+    border:1px solid var(--border);
+    border-radius:7px;
+    padding:0 11px;
+    color:#56657b;
+    background:#fff;
+    outline:none;
+    cursor:pointer;
+    font-size:11px;
+}
+select:focus{border-color:#91a8d4}
+
+.output-toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+}
+.selected-count{
+    color:#5f6f83;font-size:10px;
+}
+.deselect{
+    border:1px solid var(--border);
+    background:#fff;
+    color:#53657d;
+    border-radius:7px;
+    padding:7px 12px;
+    cursor:pointer;
+    font-size:10px;
+    font-weight:600;
+    transition:.15s ease;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+}
+.deselect:hover{
+    background:#f1f5f9;
+    border-color:#94a3b8;
+    color:#1e293b;
+}
+.output-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:11px;
+}
+.output-card{
+    position:relative;
+    min-height:113px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px;
+    cursor:pointer;
+    transition:.2s;
+    background:#fff;
+}
+.output-card:hover{
+    border-color:#aab7c6;
+    transform:translateY(-1px);
+    box-shadow:var(--shadow);
+}
+.output-card.selected{
+    border-color:#7895d8;
+    background:#f8faff;
+}
+.output-card input{
+    position:absolute;right:10px;top:10px;
+    width:15px;height:15px;accent-color:#536fd4;cursor:pointer;
+}
+.output-grid.locked{
+    opacity:0.62;
+    pointer-events:none;
+    user-select:none;
+}
+.output-grid.locked .output-card,
+.output-card.disabled{
+    cursor:not-allowed !important;
+    pointer-events:none !important;
+    transform:none !important;
+    box-shadow:none !important;
+}
+.output-card input:disabled{
+    cursor:not-allowed !important;
+    pointer-events:none !important;
+}
+.deselect:disabled{
+    opacity:0.45;
+    cursor:not-allowed !important;
+    pointer-events:none;
+}
+.output-title{
+    display:flex;align-items:center;gap:8px;
+    font-size:12px;font-weight:700;margin-bottom:8px;
+    padding-right:18px;
+}
+.output-icon{
+    width:28px;height:28px;border-radius:7px;
+    display:flex;align-items:center;justify-content:center;
+    background:#f1f4f8;color:#53657d;font-size:14px;
+}
+.output-description{
+    color:#78869a;font-size:9.5px;line-height:1.5;
+}
+.generate-wrap{text-align:center;margin-top:18px}
+.generate-btn{
+    min-width:280px;height:42px;
+    border:0;border-radius:21px;
+    background:#4d5d71;color:#fff;
+    cursor:pointer;font-size:12px;font-weight:700;
+    box-shadow:0 8px 20px rgba(52,66,86,.12);
+    transition:.2s;
+}
+.generate-btn:hover{background:#344256;transform:translateY(-1px)}
+.generate-btn:disabled{opacity:.7;cursor:wait}
+
+.output-nav{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    border:1px solid var(--border);
+    border-radius:12px;
+    background:#fff;
+    padding:6px;
+    overflow:auto;
+}
+.output-nav button{
+    white-space:nowrap;
+    border:0;
+    background:transparent;
+    color:#68768a;
+    border-radius:8px;
+    padding:9px 12px;
+    cursor:pointer;
+    font-size:10px;
+    font-weight:600;
+}
+.output-nav button:hover{background:var(--soft)}
+.output-nav button.active{
+    background:#edf2f7;
+    color:#2f4158;
+}
+.generated-status{
+    margin-left:auto;
+    white-space:nowrap;
+    color:#7a8798;
+    font-size:9px;
+    padding:0 10px;
+}
+
+.preview-card{
+    overflow:hidden;
+    padding:0;
+}
+.preview-header{
+    min-height:60px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+    padding:15px 18px;
+    border-bottom:1px solid var(--border);
+}
+.preview-title{
+    display:flex;align-items:center;gap:9px;
+    font-size:13px;font-weight:700;
+}
+.preview-title .pink{color:#b05d77}
+.preview-meta{font-size:9px;color:#8b97a7}
+.copy-btn{
+    border:1px solid var(--border);
+    background:#fff;color:#66758a;
+    border-radius:7px;padding:7px 10px;cursor:pointer;font-size:9px;
+}
+.copy-btn:hover{background:var(--soft)}
+.preview-body{
+    min-height:390px;
+    padding:20px;
+    background:
+        radial-gradient(circle at 15% 20%,rgba(91,124,250,.055),transparent 22%),
+        radial-gradient(circle at 80% 75%,rgba(38,53,74,.035),transparent 24%),
+        #fbfcfd;
+}
+.video-stage{
+    min-height:260px;
+    border:1px solid #dce2e9;
+    border-radius:10px;
+    background:#f6f8fa;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:30px;
+    overflow:hidden;
+}
+.video-stage:before{
+    content:"";
+    position:absolute;inset:0;
+    background-image:radial-gradient(#d9e0e8 1px,transparent 1px);
+    background-size:20px 20px;
+    opacity:.45;
+}
+.play-btn{
+    position:relative;
+    z-index:1;
+    width:58px;height:58px;border-radius:50%;
+    border:1px solid #9baabd;
+    background:#fff;color:#50627a;
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;cursor:pointer;
+    box-shadow:0 6px 18px rgba(38,53,74,.09);
+}
+.visual-prompt{
+    position:relative;z-index:1;
+    margin-top:18px;
+    max-width:600px;
+    padding:11px 15px;
+    border:1px solid #dbe2e9;
+    border-radius:9px;
+    background:rgba(255,255,255,.9);
+    color:#718096;font-size:10px;line-height:1.55;
+}
+.subtitle{
+    margin:15px auto 0;
+    max-width:760px;
+    padding:13px 18px;
+    border:1px solid #dfe5eb;
+    border-radius:8px;
+    background:#fff;
+    text-align:center;
+    font-size:11px;
+    font-weight:600;
+    line-height:1.5;
+}
+.preview-footer{
+    border-top:1px solid var(--border);
+    padding:10px 16px;
+    display:flex;
+    justify-content:space-between;
+    color:#78869a;
+    font-size:9px;
+}
+
+.storyboard{
+    margin-top:18px;
+}
+.storyboard-head{
+    display:flex;align-items:center;gap:9px;
+    font-size:14px;font-weight:700;
+    margin-bottom:13px;
+}
+.storyboard-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:11px;
+}
+.scene{
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:15px;
+    background:#fff;
+    min-height:175px;
+}
+.scene.active{border-color:#91a6c4;background:#fbfcfe}
+.scene-top{
+    display:flex;justify-content:space-between;gap:10px;
+    margin-bottom:9px;
+}
+.scene h4{font-size:11px;color:#526b91}
+.scene-time{
+    font-size:8px;color:#8c98a7;background:#f2f4f7;
+    padding:4px 6px;border-radius:5px;white-space:nowrap;
+}
+.scene p{
+    font-size:10px;line-height:1.55;color:#4f5f73;
+    margin-bottom:9px;
+}
+.scene-detail{
+    border-top:1px solid #edf0f3;
+    padding-top:8px;
+    color:#7c899a;font-size:9px;line-height:1.5;
+}
+.scene-detail strong{color:#63738a}
+
+.footer{
+    margin-top:26px;
+    padding:17px 3px 0;
+    border-top:1px solid var(--border);
+    display:flex;justify-content:space-between;
+    color:#7a8798;font-size:9px;
+}
+.footer strong{color:#53657a}
+.toast{
+    position:fixed;right:22px;bottom:22px;z-index:200;
+    background:#344256;color:#fff;
+    padding:11px 15px;border-radius:8px;
+    font-size:11px;
+    opacity:0;transform:translateY(12px);
+    pointer-events:none;transition:.25s;
+}
+.toast.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:1050px){
+    .topbar{padding-left:18px;padding-right:18px}
+    .brand{min-width:225px}
+    .preset-bar{display:none}
+    .output-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:760px){
+    .topbar{flex-wrap:wrap}
+    .header-controls{width:100%;justify-content:space-between}
+    .engine-status{flex:1}
+    .page{width:min(100% - 22px,1180px);padding-top:15px}
+    .hero{padding:25px 22px}
+    .hero h1{font-size:28px}
+    .metrics{grid-template-columns:repeat(2,1fr);gap:16px}
+    .parameter-grid{grid-template-columns:1fr}
+    .output-grid{grid-template-columns:repeat(2,1fr)}
+    .storyboard-grid{grid-template-columns:1fr}
+    .generated-status{display:none}
+}
+@media(max-width:470px){
+    .brand{min-width:0}
+    .brand-name{font-size:17px}
+    .brand-sub{display:none}
+    .eval-btn{display:none}
+    .card{padding:17px}
+    .output-grid{grid-template-columns:1fr}
+    .generate-btn{min-width:100%}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header class="topbar">
+    <div class="brand">
+        <div class="brand-icon">✣</div>
+        <div class="brand-copy">
+            <div class="brand-name">InfoGen <span class="ai-badge">AI PLATFORM</span></div>
+            <div class="brand-sub">Gen AI Platform for Automated Content<br>Transformation</div>
+        </div>
+    </div>
+</header>
+
+<main class="page">
+
+<section class="hero">
+    <h1>Transform Raw Content into Powerful Communication Deliverables</h1>
+    <p>
+        Convert news articles, security threat intelligence, reports, incident reports,
+        announcements, research papers, documents, images, videos or free-form prompts
+        into the communication format your audience needs — from one source, simultaneously.
+    </p>
+    <div class="hero-line"></div>
+    <div class="supported-format">
+        <div><div class="metric-label">Supported Formats</div><div class="metric-value blue">7 Deliverables</div></div>
+    </div>
+</section>
+
+<div class="workflow">
+
+<!-- STEP 1 -->
+<section class="card" id="source">
+    <div class="section-head">
+        <div class="step">1</div>
+        <div>
+            <h2>Source Content Ingestion <span class="pill">Multi-Modal Input</span></h2>
+            <p>Provide high-quality text, documents, threat intelligence, news articles, reports, media or a free-form prompt.</p>
+        </div>
+    </div>
+
+   <div class="universal-source">
+
+    <div class="drop-zone" id="dropZone">
+
+        <h3>Drop your source here</h3>
+
+        <p class="drop-main">
+            Drag & drop any file, or
+            <button type="button" id="browseBtn">browse files</button>
+        </p>
+
+        <p class="supported">
+            PDF • DOCX • TXT • Images • Audio • Video
+        </p>
+
+        <div class="divider">
+            <span>OR</span>
+        </div>
+
+        <textarea
+            id="sourceText"
+            maxlength="8000"
+            placeholder="Paste text, a webpage URL, article, prompt or other source content here..."
+        ></textarea>
+
+        <div class="counter">
+            <span id="charCount">0</span>/8000
+        </div>
+
+    </div>
+
+    <input
+        type="file"
+        id="sourceInput"
+        hidden
+        multiple
+        accept=".pdf,.doc,.docx,.txt,image/*,audio/*,video/*"
+    >
+
+    <div id="sourceFiles" class="source-files"></div>
+
+</div>
+
+    <div class="input-actions">
+        <span class="file-info">Input can be combined with contextual instructions.</span>
+        <button class="small-btn" onclick="clearSource()">↻ Clear Source</button>
+    </div>
+</section>
+
+<!-- STEP 2 -->
+<section class="card" id="parameters">
+    <div class="section-head">
+        <div class="step">2</div>
+        <div>
+            <h2>Configurable Generation Parameters <span class="pill">Tuning Matrix</span></h2>
+            <p>Control how the AI engine adapts context, vocabulary, visual recommendations and formatting.</p>
+        </div>
+    </div>
+
+    <div class="parameter-grid">
+        <div class="parameter">
+            <label><span class="param-icon">♧</span>Target Audience</label>
+            <select id="audience">
+                <option>Technical Team &amp; IT Admins</option>
+                <option>Executives</option>
+                <option>General Public</option>
+                <option>Students</option>
+                <option>Government Officials</option>
+                <option>Security Analysts</option>
+            </select>
+        </div>
+        <div class="parameter">
+            <label><span class="param-icon">◉</span>Tone of Voice</label>
+            <select id="tone">
+                <option>Urgent Advisory</option>
+                <option>Professional</option>
+                <option>Formal</option>
+                <option>Friendly</option>
+                <option>Persuasive</option>
+                <option>Educational</option>
+            </select>
+        </div>
+        <div class="parameter">
+            <label><span class="param-icon">◎</span>Target Language</label>
+            <select id="language">
+                <option>English </option>
+                <option>Hindi</option>
+                <option>Gujarati</option>
+                <option>Spanish</option>
+                <option>French</option>
+            </select>
+        </div>
+        <div class="parameter">
+            <label><span class="param-icon">▥</span>Level of Detail</label>
+            <select id="detail">
+                <option>Exhaustive / Deep Dive</option>
+                <option>Standard</option>
+                <option>Concise</option>
+                <option>Detailed</option>
+            </select>
+        </div>
+        <div class="parameter">
+            <label><span class="param-icon">◎</span>Primary Objective</label>
+            <select id="objective">
+                <option>Risk Mitigation &amp; Action</option>
+                <option>Inform</option>
+                <option>Educate</option>
+                <option>Persuade</option>
+                <option>Engage</option>
+                <option>Call to Action</option>
+            </select>
+        </div>
+    </div>
+</section>
+
+<!-- STEP 3 -->
+<section class="card" id="outputs">
+    <div class="section-head">
+        <div class="step">3</div>
+        <div>
+            <h2>Desired Output Format Hub <span class="pill" id="multiPill">Multi-Select Enabled</span></h2>
+            <p>Select one or multiple deliverables. The platform synthesizes all selected formats from the same source context.</p>
+        </div>
+    </div>
+
+    <div class="output-toolbar">
+        <span class="selected-count" id="selectedCount">0 deliverables selected</span>
+        <button class="deselect" id="deselectBtn" onclick="toggleSelectAll()">✕ Deselect All</button>
+    </div>
+
+    <div class="output-grid">
+        <label class="output-card selected">
+            <input type="checkbox" value="Video Package" checked>
+            <div class="output-title"><div class="output-icon">▶</div>Video Package</div>
+            <div class="output-description">Script, storyboard, narration text, VTT subtitles &amp; visual recommendations</div>
+        </label>
+        <label class="output-card selected">
+            <input type="checkbox" value="LinkedIn Post" checked>
+            <div class="output-title"><div class="output-icon">in</div>LinkedIn Post</div>
+            <div class="output-description">Professional publication copy, key hashtags, CTA &amp; carousel messaging</div>
+        </label>
+        <label class="output-card selected">
+            <input type="checkbox" value="Twitter / X Post" checked>
+            <div class="output-title"><div class="output-icon">𝕏</div>Twitter / X Post</div>
+            <div class="output-description">Platform-optimized post series, concise indicators &amp; thread copy</div>
+        </label>
+        <label class="output-card selected">
+            <input type="checkbox" value="Advisory Document" checked>
+            <div class="output-title"><div class="output-icon">⬟</div>Advisory Document</div>
+            <div class="output-description">Structured advisory with severity, overview, impact and mitigation</div>
+        </label>
+        <label class="output-card selected">
+            <input type="checkbox" value="Infographic" checked>
+            <div class="output-title"><div class="output-icon">◔</div>Infographic</div>
+            <div class="output-description">Visual layout wireframe, messaging hierarchy, icon specs &amp; metric cards</div>
+        </label>
+        <label class="output-card selected">
+            <input type="checkbox" value="Executive Summary" checked>
+            <div class="output-title"><div class="output-icon">▤</div>Executive Summary</div>
+            <div class="output-description">Concise executive briefing, key insights, decisions &amp; action items</div>
+        </label>
+        <label class="output-card selected">
+            <input type="checkbox" value="Presentation Deck" checked>
+            <div class="output-title"><div class="output-icon">▣</div>Presentation Deck</div>
+            <div class="output-description">Slides, speaker notes and a structured narrative for presentations</div>
+        </label>
+    </div>
+
+    <div class="generate-wrap">
+        <button class="generate-btn" id="generateBtn"> Generate <span id="generateCount">7</span> Selected Deliverables</button>
+
+        <!-- Live Processing & Progress Timer Card -->
+        <div id="processingCard" style="display:none;margin:20px auto 0;max-width:680px;background:#fcfdfe;border:1px solid #dce2e9;border-radius:12px;padding:20px 24px;text-align:left;box-shadow:0 4px 18px rgba(38,53,74,0.05);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <div style="font-size:13px;font-weight:700;color:#26354a;display:flex;align-items:center;gap:10px;">
+                    <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#5b7cfa;"></span>
+                    <span id="processingStage">Ingesting & Normalizing Source...</span>
+                </div>
+                <div style="font-size:11px;font-weight:700;color:#2f54a8;background:#eef3fc;padding:5px 12px;border-radius:12px;" id="timerBadge">
+                    ⏱ Est. Time Remaining: ~45s
+                </div>
+            </div>
+            <!-- Progress Bar -->
+            <div style="height:7px;background:#edf2f7;border-radius:4px;overflow:hidden;margin-bottom:10px;">
+                <div id="progressBar" style="width:5%;height:100%;background:linear-gradient(90deg, #5b7cfa, #344256);border-radius:4px;transition:width 0.5s ease;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#718096;">
+                <span id="processingDetail">Step 1 of 3: Parsing document content and metadata...</span>
+                <span id="elapsedTimer" style="font-weight:600;color:#4a5568;">Elapsed: 0s</span>
+            </div>
+            <div style="margin-top:10px;font-size:10px;color:#9aa5b3;text-align:center;">
+                Processing via NVIDIA NIM AI. Please keep this tab open — deliverables will appear automatically below.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- GENERATED OUTPUT AREA -->
+<section id="generated">
+    <div class="output-nav">
+        <button data-output="video">▶ &nbsp;Video Package</button>
+        <button data-output="linkedin">in &nbsp;LinkedIn Post</button>
+        <button data-output="twitter">𝕏 &nbsp;Twitter / X Post</button>
+        <button data-output="advisory">⬟ &nbsp;Advisory Doc</button>
+        <button data-output="infographic">◔ &nbsp;Infographic</button>
+        <button data-output="summary">▤ &nbsp;Executive Summary</button>
+        <button data-output="presentation">▣ &nbsp;Presentation Deck</button>
+        <span class="generated-status" id="generatedStatus">Ready to Generate</span>
+    </div>
+
+    <div class="card preview-card" style="margin-top:14px;transition:box-shadow 0.6s ease, border-color 0.6s ease;">
+        <div id="outputSuccessBanner" style="display:none;background:linear-gradient(90deg, #edf7ee, #f0f7ff);border-bottom:1px solid #dce2e9;padding:10px 18px;font-size:11px;color:#1e5622;font-weight:600;justify-content:space-between;align-items:center;">
+            <span>✓ Content transformation complete. Source inputs have been reset for your next file.</span>
+            <button onclick="startNewTransformation()" style="background:none;border:none;color:#1e7e34;font-weight:700;cursor:pointer;font-size:11px;text-decoration:underline;">+ Add another file ↑</button>
+        </div>
+        <div class="preview-header">
+            <div class="preview-title"><span class="pink">▣</span><span id="previewTitle">Deliverable Preview</span></div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <button class="copy-btn" id="newTransformBtn" onclick="startNewTransformation()" style="display:none;background:#eef7ee;color:#1e7e34;font-weight:700;border-color:#b7e4c7;">+ Add New Source</button>
+                <button class="copy-btn" id="downloadCurrentBtn" onclick="downloadCurrentDeliverable()" disabled style="background:#edf3fc;color:#2f54a8;font-weight:700;opacity:0.45;cursor:not-allowed;">⬇ Download Format</button>
+                <button class="copy-btn" id="downloadAllBtn" onclick="downloadAllDeliverables()" disabled style="background:#26354a;color:#fff;font-weight:700;opacity:0.45;cursor:not-allowed;">📦 Download All (.ZIP)</button>
+                <button class="copy-btn" id="copyPreviewBtn" onclick="copyPreview()" disabled style="opacity:0.45;cursor:not-allowed;">▢ Copy Full Output</button>
+            </div>
+        </div>
+
+        <div class="preview-body" id="previewBody">
+            <div id="previewPlaceholder" style="text-align:center;padding:56px 20px;border:2px dashed var(--border, #dce2e9);border-radius:12px;background:rgba(244,247,250,0.5);margin:10px 0;">
+                
+                <h3 style="font-size:16px;font-weight:700;color:var(--text, #1f2937);margin:0 0 8px;">No Deliverables Generated Yet</h3>
+                <p style="font-size:13px;max-width:460px;margin:0 auto 20px;line-height:1.5;color:var(--text-muted, #64748b);">
+                    Upload your source file (PDF, DOCX, TXT) or paste text above, select your desired output formats in the Hub, and click <strong>Generate</strong> to produce your tailored deliverables.
+                </p>
+                <button onclick="scrollToId('source')" class="btn-primary" style="padding:9px 20px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer;border-radius:8px;">
+                    ↑ Add Source Content to Begin
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+</div>
+
+<footer class="footer">
+    <span><strong>InfoGen AI</strong> — Gen AI Platform for Automated Content Transformation</span>
+</footer>
+
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const toast=document.getElementById("toast");
+function showToast(message){
+    toast.textContent=message;
+    toast.classList.add("show");
+    setTimeout(()=>toast.classList.remove("show"),2600);
+}
+function scrollToId(id){document.getElementById(id)?.scrollIntoView({behavior:"smooth"})}
+
+const dropZone = document.getElementById("dropZone");
+const sourceInput = document.getElementById("sourceInput");
+const browseBtn = document.getElementById("browseBtn");
+const sourceFiles = document.getElementById("sourceFiles");
+
+browseBtn.addEventListener("click", () => {
+    sourceInput.click();
+});
+
+sourceInput.addEventListener("change", () => {
+    handleFiles([...sourceInput.files]);
+});
+
+dropZone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropZone.classList.add("dragging");
+});
+
+dropZone.addEventListener("dragleave", () => {
+    dropZone.classList.remove("dragging");
+});
+
+dropZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropZone.classList.remove("dragging");
+    const files = [...e.dataTransfer.files];
+    handleFiles(files);
+});
+
+// Store files globally for upload
+let uploadedFiles = [];
+
+function handleFiles(files) {
+    if (!files.length) return;
+    uploadedFiles = uploadedFiles.concat(files);
+    files.forEach(file => {
+        const item = document.createElement("div");
+        item.className = "source-file";
+        item.innerHTML = `
+            <span class="file-type">${getFileIcon(file.type)}</span>
+            <div class="file-details">
+                <strong>${file.name}</strong>
+                <span>${formatFileSize(file.size)}</span>
+            </div>
+            <span class="file-status">✓ Ready</span>
+        `;
+        sourceFiles.appendChild(item);
+    });
+    showToast(`${files.length} source${files.length > 1 ? "s" : ""} added.`);
+}
+
+function getFileIcon(type) {
+    if (type.includes("pdf")) return "📄";
+    if (type.includes("image")) return "🖼";
+    if (type.includes("video")) return "🎥";
+    if (type.includes("audio")) return "🎵";
+    if (type.includes("text")) return "📝";
+    return "📎";
+}
+
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024)
+        return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+}
+
+const sourceText=document.getElementById("sourceText");
+const charCount=document.getElementById("charCount");
+function updateCount(){charCount.textContent=sourceText.value.length}
+sourceText.addEventListener("input",updateCount);
+updateCount();
+
+document.querySelectorAll(".file-target").forEach(box=>{
+    const input=document.getElementById(box.dataset.input);
+    box.addEventListener("click",()=>input.click());
+    input.addEventListener("change",()=>{
+        if(!input.files.length)return;
+        box.innerHTML=`<div class="upload-icon">✓</div><div><strong>${input.files[0].name}</strong><div class="file-info">File selected successfully</div></div>`;
+    });
+});
+
+let isGenerating = false;
+const cards=[...document.querySelectorAll(".output-card")];
+const checks=cards.map(c=>c.querySelector("input"));
+const selectedCount=document.getElementById("selectedCount");
+const generateCount=document.getElementById("generateCount");
+const multiPill=document.getElementById("multiPill");
+
+function setFormatHubLocked(locked) {
+    const grid = document.querySelector(".output-grid");
+    const deselectBtn = document.getElementById("deselectBtn");
+    const pill = document.getElementById("multiPill");
+    if (grid) grid.classList.toggle("locked", locked);
+    cards.forEach(card => card.classList.toggle("disabled", locked));
+    checks.forEach(chk => { chk.disabled = locked; });
+    if (deselectBtn) deselectBtn.disabled = locked;
+    if (pill) {
+        if (locked) {
+            pill.innerHTML = `🔒 Selection Locked (Generating...)`;
+            pill.style.background = "#fef3c7";
+            pill.style.color = "#92400e";
+            pill.style.borderColor = "#fcd34d";
+        } else {
+            const n = checks.filter(c => c.checked).length;
+            pill.textContent = `Multi-Select Enabled (${n} Selected)`;
+            pill.style.background = "";
+            pill.style.color = "";
+            pill.style.borderColor = "";
+        }
+    }
+}
+
+function updateOutputs(){
+    if (isGenerating) return;
+    const n=checks.filter(c=>c.checked).length;
+    cards.forEach(card=>{
+        const input=card.querySelector("input");
+        card.classList.toggle("selected",input.checked);
+    });
+    selectedCount.textContent=`${n} deliverable${n===1?"":"s"} selected`;
+    generateCount.textContent=n;
+    multiPill.textContent=`Multi-Select Enabled (${n} Selected)`;
+
+    const toggleBtn = document.getElementById("deselectBtn");
+    if (toggleBtn) {
+        if (n === checks.length) {
+            toggleBtn.innerHTML = `✕ &nbsp;Deselect All`;
+            toggleBtn.setAttribute("title", "Click to deselect all output formats");
+        } else {
+            toggleBtn.innerHTML = `✓ &nbsp;Select All`;
+            toggleBtn.setAttribute("title", "Click to select all 7 output formats");
+        }
+    }
+}
+checks.forEach(c=>c.addEventListener("change",updateOutputs));
+
+function toggleSelectAll(){
+    if (isGenerating) return;
+    const allSelected = checks.every(c => c.checked);
+    if (allSelected) {
+        checks.forEach(c => c.checked = false);
+        updateOutputs();
+        showToast("All output formats deselected.");
+    } else {
+        checks.forEach(c => c.checked = true);
+        updateOutputs();
+        showToast("All 7 output formats selected.");
+    }
+}
+
+function deselectAll(){
+    toggleSelectAll();
+}
+updateOutputs();
+
+document.querySelectorAll(".preset-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+        if (isGenerating) return;
+        document.querySelectorAll(".preset-btn").forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        const preset=btn.dataset.preset;
+        if(preset==="Cyber Security"){
+            document.getElementById("audience").value="Technical Team & IT Admins";
+            document.getElementById("tone").value="Urgent Advisory";
+            document.getElementById("objective").value="Risk Mitigation & Action";
+            document.getElementById("detail").value="Exhaustive / Deep Dive";
+        }else if(preset==="Financial"){
+            document.getElementById("audience").value="Executives";
+            document.getElementById("tone").value="Professional";
+            document.getElementById("objective").value="Inform";
+            document.getElementById("detail").value="Detailed";
+        }else if(preset==="General AI"){
+            document.getElementById("audience").value="General Public";
+            document.getElementById("tone").value="Educational";
+            document.getElementById("objective").value="Educate";
+            document.getElementById("detail").value="Standard";
+        }
+        showToast(`${preset} preset applied.`);
+    });
+});
+
+// ============================
+// BACKEND INTEGRATION
+// ============================
+
+// Map output-nav data-output keys to result.outputs keys
+const OUTPUT_KEY_MAP = {
+    video: "video_package",
+    linkedin: "linkedin_post",
+    twitter: "twitter_post",
+    advisory: "advisory_document",
+    infographic: "infographic",
+    summary: "executive_summary",
+    presentation: "presentation_deck"
+};
+
+const OUTPUT_TITLES = {
+    video: "Video Package",
+    linkedin: "LinkedIn Post",
+    twitter: "Twitter / X Post",
+    advisory: "Advisory Document",
+    infographic: "Infographic",
+    summary: "Executive Summary",
+    presentation: "Presentation Deck"
+};
+
+let generatedOutputs = {};  // per-format structured outputs
+let generatedOutput = "";   // combined text fallback
+
+function renderOutput(outputKey) {
+    const data = generatedOutputs[OUTPUT_KEY_MAP[outputKey]];
+    const body = document.getElementById("previewBody");
+    const title = document.getElementById("previewTitle");
+
+    title.textContent = OUTPUT_TITLES[outputKey] || "Generated Output";
+
+    if (!data) {
+        body.innerHTML = `<div class="subtitle" style="max-width:900px;text-align:left;color:#8995a5;">
+            This deliverable was not selected or not generated.</div>`;
+        return;
+    }
+
+    // Render structured content based on type
+    if (outputKey === "video" && data.scenes) {
+        let scenesHtml = data.scenes.map(s => `
+            <article class="scene${s.scene_number === 1 ? ' active' : ''}" onclick="jumpToScene(${s.scene_number - 1})" style="cursor:pointer;" title="Click to jump to Scene ${s.scene_number}">
+                <div class="scene-top">
+                    <h4>Scene ${s.scene_number}: ${escapeHtml(s.title || '')}</h4>
+                    <span class="scene-time">${escapeHtml(s.start_time || '')} – ${escapeHtml(s.end_time || '')}</span>
+                </div>
+                <p>${escapeHtml(s.narration || '')}</p>
+                <div class="scene-detail">
+                    <strong>Visual:</strong> ${escapeHtml(s.visual || '')}<br>
+                    <strong>Camera:</strong> ${escapeHtml(s.camera || '')}<br>
+                    ${s.on_screen_text ? '<strong>On-Screen:</strong> ' + escapeHtml(s.on_screen_text) : ''}
+                </div>
+            </article>
+        `).join('');
+
+        body.innerHTML = `
+            <div style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                <div>
+                    <strong style="color:#2b3e58;font-size:15px;">${escapeHtml(data.title || 'Video Production Package')}</strong>
+                    <span style="color:#78869a;font-size:11px;margin-left:8px;background:#edf2f8;padding:2px 8px;border-radius:12px;">⏱ ${data.duration_seconds || 60}s • ${data.scenes.length} Scenes</span>
+                </div>
+                <div style="font-size:11px;color:#50627a;">
+                    Target Audience: <strong>${escapeHtml(data.target_audience || 'General')}</strong>
+                </div>
+            </div>
+
+            <!-- Interactive 16:9 Canvas Video Player -->
+            <div class="video-container" style="background:#0b111e;border-radius:12px;padding:14px;box-shadow:0 12px 32px rgba(11,17,30,0.25);margin-bottom:20px;border:1px solid #1e293b;">
+                <div style="position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:8px;background:#050811;">
+                    <canvas id="videoPlayerCanvas" width="960" height="540" style="width:100%;height:100%;display:block;"></canvas>
+                    <div id="videoPlayOverlay" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(5,8,17,0.55);cursor:pointer;transition:all 0.3s ease;" onclick="toggleVideoPlayback()">
+                        <button class="play-btn" style="width:64px;height:64px;font-size:26px;background:rgba(255,255,255,0.95);border:none;box-shadow:0 8px 25px rgba(91,124,250,0.5);color:#1e293b;">▶</button>
+                        <span style="color:#f1f5f9;margin-top:14px;font-size:12px;font-weight:600;letter-spacing:0.5px;text-shadow:0 2px 6px rgba(0,0,0,0.8);">Click to Play Video with Voice Narration</span>
+                    </div>
+                </div>
+
+                <!-- Video Controls Bar -->
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:12px;padding:4px 6px;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <button id="videoPlayBtn" class="copy-btn" onclick="toggleVideoPlayback()" style="background:#5b7cfa;color:#fff;font-weight:700;border:none;padding:7px 15px;font-size:11px;">▶ Play</button>
+                        <button class="copy-btn" onclick="restartVideoPlayback()" style="background:#1e293b;color:#cbd5e1;border:1px solid #334155;padding:7px 12px;font-size:11px;">↺ Restart</button>
+                        <button id="voiceToggleBtn" class="copy-btn" onclick="toggleVoiceNarration()" style="background:#1e293b;color:#38bdf8;border:1px solid #334155;padding:7px 12px;font-size:11px;">🔊 Voice: ON</button>
+                        <span id="videoTimeDisplay" style="color:#94a3b8;font-size:11px;font-family:monospace;margin-left:6px;">00:00 / 00:55</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <button class="copy-btn" onclick="exportRecordedVideo()" style="background:linear-gradient(135deg,#e11d48,#f43f5e);color:#fff;font-weight:700;border:none;padding:7px 14px;font-size:11px;box-shadow:0 4px 12px rgba(225,29,72,0.3);">🎬 Download Video (.webm)</button>
+                        <button class="copy-btn" onclick="downloadVideoSubtitles()" style="background:#1e293b;color:#cbd5e1;border:1px solid #334155;padding:7px 10px;font-size:11px;">💬 .VTT</button>
+                        <button class="copy-btn" onclick="downloadVideoScript()" style="background:#1e293b;color:#cbd5e1;border:1px solid #334155;padding:7px 10px;font-size:11px;">📄 Script</button>
+                    </div>
+                </div>
+
+                <!-- Scene Navigation Pills -->
+                <div id="videoScenePills" style="display:flex;gap:6px;margin-top:10px;overflow-x:auto;padding-bottom:4px;"></div>
+            </div>
+
+            <div class="subtitle" style="max-width:900px;text-align:left;white-space:pre-wrap;margin-bottom:18px">
+                <strong>Full Narration Script:</strong><br>${escapeHtml(data.script || '')}
+            </div>
+            <div class="storyboard-head">▦ &nbsp; Scene-by-Scene Production Storyboard</div>
+            <div class="storyboard-grid">${scenesHtml}</div>
+            ${data.vtt ? '<div style="margin-top:16px"><strong style="color:#526b91;font-size:11px">VTT Subtitles:</strong><pre style="background:#f6f8fa;border:1px solid #dce2e9;border-radius:8px;padding:12px;font-size:10px;overflow-x:auto;margin-top:6px">' + escapeHtml(data.vtt) + '</pre></div>' : ''}
+        `;
+
+        setTimeout(() => initVideoPlayer(data), 50);
+    } else if (outputKey === "advisory" && data.title) {
+        body.innerHTML = `
+            <div class="subtitle" style="max-width:900px;text-align:left;white-space:pre-wrap;">
+                <div style="margin-bottom:12px"><strong style="font-size:15px;color:#293a52">${data.title}</strong></div>
+                ${data.severity ? '<div style="margin-bottom:8px"><strong>Severity:</strong> <span style="color:#b05d77;font-weight:700">' + data.severity + '</span></div>' : ''}
+                ${data.executive_overview ? '<div style="margin-bottom:10px"><strong>Executive Overview:</strong><br>' + data.executive_overview + '</div>' : ''}
+                ${data.threat_description ? '<div style="margin-bottom:10px"><strong>Threat Description:</strong><br>' + data.threat_description + '</div>' : ''}
+                ${data.indicators && data.indicators.length ? '<div style="margin-bottom:10px"><strong>Indicators:</strong><br>' + data.indicators.map(i => '• ' + i).join('<br>') + '</div>' : ''}
+                ${data.impact ? '<div style="margin-bottom:10px"><strong>Impact:</strong><br>' + data.impact + '</div>' : ''}
+                ${data.immediate_actions && data.immediate_actions.length ? '<div style="margin-bottom:10px"><strong>Immediate Actions:</strong><br>' + data.immediate_actions.map((a,i) => (i+1) + '. ' + a).join('<br>') + '</div>' : ''}
+                ${data.mitigation && data.mitigation.length ? '<div style="margin-bottom:10px"><strong>Mitigation:</strong><br>' + data.mitigation.map((m,i) => (i+1) + '. ' + m).join('<br>') + '</div>' : ''}
+                ${data.confidence_level ? '<div><strong>Confidence:</strong> ' + data.confidence_level + '</div>' : ''}
+            </div>
+        `;
+    } else if (outputKey === "presentation" && data.slides) {
+        let slidesHtml = data.slides.map(s => {
+            const pointsHtml = (s.key_points || []).map(p => `
+                <div style="font-size:12px;color:#334155;line-height:1.55;margin-bottom:6px;display:flex;align-items:flex-start;gap:8px;">
+                    <span style="color:#3b82f6;font-weight:700;line-height:1.4;">•</span>
+                    <span>${escapeHtml(p)}</span>
+                </div>
+            `).join('');
+
+            return `
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+                <!-- Slide Header -->
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="background:#0f172a;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;">Slide ${s.slide_number}</span>
+                        <span style="background:#e0f2fe;color:#0369a1;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;text-transform:uppercase;">${escapeHtml(s.category || 'Strategic Briefing')}</span>
+                    </div>
+                    <span style="font-size:11px;color:#64748b;font-style:italic;">${escapeHtml(s.purpose || '')}</span>
+                </div>
+
+                <!-- Slide Title -->
+                <h4 style="font-size:16px;color:#0f172a;font-weight:700;margin:0 0 12px 0;line-height:1.4;">${escapeHtml(s.title || '')}</h4>
+
+                <!-- Slide Body / Key Points -->
+                <div style="background:#f8fafc;border:1px solid #edf2f7;border-radius:8px;padding:14px;margin-bottom:12px;">
+                    <strong style="font-size:11px;color:#475569;text-transform:uppercase;display:block;margin-bottom:8px;">Key Insights & Findings</strong>
+                    ${pointsHtml || `<p style="font-size:12px;color:#334155;line-height:1.6;margin:0;">${escapeHtml(s.body_content || '')}</p>`}
+                </div>
+
+                <!-- Visual Direction Badge -->
+                ${s.visual_recommendation ? `
+                    <div style="background:#f1f5f9;border:1px dashed #cbd5e1;border-radius:8px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:18px;">📊</span>
+                        <div>
+                            <strong style="font-size:10px;color:#475569;text-transform:uppercase;display:block;">Embedded PowerPoint Visual:</strong>
+                            <span style="font-size:11px;color:#1e293b;font-weight:600;">${escapeHtml(s.visual_recommendation)}</span>
+                        </div>
+                    </div>
+                ` : ''}
+
+                <!-- Takeaway Box -->
+                ${s.takeaway ? `
+                    <div style="background:#eff6ff;border-left:3px solid #3b82f6;border-radius:0 8px 8px 0;padding:8px 12px;margin-bottom:10px;font-size:11px;color:#1e40af;">
+                        <strong>💡 Executive Takeaway:</strong> ${escapeHtml(s.takeaway)}
+                    </div>
+                ` : ''}
+
+                <!-- Speaker Notes -->
+                ${s.speaker_notes ? `
+                    <div style="background:#fffbeb;border:1px solid #fef3c7;border-radius:8px;padding:10px 12px;font-size:11px;color:#92400e;line-height:1.5;">
+                        <strong style="display:block;margin-bottom:4px;color:#b45309;">🎙️ Speaker Notes (Embedded in PPTX):</strong>
+                        ${escapeHtml(s.speaker_notes)}
+                    </div>
+                ` : ''}
+            </div>
+            `;
+        }).join('');
+
+        body.innerHTML = `
+            <div style="max-width:880px;margin:0 auto;text-align:left;">
+                <!-- Header Banner -->
+                <div style="background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;border-radius:10px;padding:20px 24px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                    <div>
+                        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#38bdf8;margin-bottom:4px;">Executive Slide Deck</div>
+                        <div style="font-size:18px;font-weight:700;">${escapeHtml(data.title || 'Strategic Executive Presentation')}</div>
+                        <div style="font-size:11px;color:#94a3b8;margin-top:4px;">${data.slides.length} Content-Rich Slides • Custom Embedded Architectural Diagrams</div>
+                    </div>
+                    <div>
+                        <button class="copy-btn" onclick="downloadCurrentDeliverable()" style="background:#38bdf8;color:#0f172a;font-weight:700;border:none;padding:8px 16px;border-radius:8px;box-shadow:0 4px 14px rgba(56,189,248,0.3);">📥 Download PowerPoint (.pptx)</button>
+                    </div>
+                </div>
+                ${slidesHtml}
+            </div>
+        `;
+    } else if (outputKey === "linkedin") {
+        const slidesHtml = (data.carousel_slides || []).map(cs => `
+            <div style="background:#fff;border:1px solid #dce2e9;border-radius:8px;padding:12px;margin-bottom:8px;">
+                <span style="font-size:10px;font-weight:700;color:#0a66c2;text-transform:uppercase;">Slide ${cs.slide_number}</span>
+                <div style="font-weight:700;font-size:12px;color:#1e293b;margin:4px 0 6px;">${escapeHtml(cs.headline || '')}</div>
+                <div style="font-size:11px;color:#475569;line-height:1.5;">${escapeHtml(cs.body || '')}</div>
+            </div>
+        `).join('');
+
+        const insightsHtml = (data.key_insights || []).map(ki => `
+            <div style="background:#f0f7ff;border-left:3px solid #0a66c2;padding:8px 12px;margin-bottom:6px;font-size:11px;color:#1e3a5f;border-radius:0 6px 6px 0;">
+                💡 <strong>Key Insight:</strong> ${escapeHtml(ki)}
+            </div>
+        `).join('');
+
+        const hashtagsHtml = (data.hashtags || []).map(h => `
+            <span style="display:inline-block;background:#e8f3fc;color:#0a66c2;font-weight:600;font-size:10px;padding:3px 8px;border-radius:12px;margin:2px;">
+                ${escapeHtml(h.startsWith('#') ? h : '#' + h)}
+            </span>
+        `).join('');
+
+        body.innerHTML = `
+            <div style="max-width:850px;margin:0 auto;text-align:left;">
+                <!-- LinkedIn Feed Card -->
+                <div style="background:#fff;border:1px solid #dce2e9;border-radius:10px;padding:20px;box-shadow:0 4px 16px rgba(10,102,194,0.06);margin-bottom:16px;">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;border-bottom:1px solid #edf2f7;padding-bottom:12px;">
+                        <div style="width:42px;height:42px;border-radius:50%;background:#0a66c2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;">in</div>
+                        <div>
+                            <div style="font-weight:700;font-size:13px;color:#1e293b;">InfoGen AI • Content Transformation</div>
+                            <div style="font-size:10px;color:#64748b;">Ready for LinkedIn Publication • 🌐 Public</div>
+                        </div>
+                    </div>
+
+                    ${data.hook ? `<div style="font-weight:700;font-size:13px;color:#0a66c2;margin-bottom:12px;line-height:1.5;">${escapeHtml(data.hook)}</div>` : ''}
+
+                    <div style="font-size:12px;color:#334155;line-height:1.65;white-space:pre-wrap;margin-bottom:16px;">${escapeHtml(data.post || '')}</div>
+
+                    ${insightsHtml ? `<div style="margin:14px 0;"><strong style="font-size:11px;color:#475569;display:block;margin-bottom:6px;">KEY TAKEAWAYS & INSIGHTS:</strong>${insightsHtml}</div>` : ''}
+
+                    ${data.cta ? `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;margin:12px 0;font-size:11px;color:#2563eb;"><strong>Call to Action:</strong> ${escapeHtml(data.cta)}</div>` : ''}
+
+                    ${hashtagsHtml ? `<div style="margin-top:12px;padding-top:10px;border-top:1px solid #edf2f7;">${hashtagsHtml}</div>` : ''}
+                </div>
+
+                ${slidesHtml ? `
+                    <div class="storyboard-head" style="margin-top:20px;">▦ &nbsp; Visual Carousel Deck (${(data.carousel_slides || []).length} Slides)</div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:10px;">${slidesHtml}</div>
+                ` : ''}
+            </div>
+        `;
+    } else if (outputKey === "twitter") {
+        const threadHtml = (data.thread || []).map((t, idx) => `
+            <div style="position:relative;padding-left:28px;margin-bottom:14px;">
+                <div style="position:absolute;left:8px;top:0;bottom:-14px;width:2px;background:#e2e8f0;"></div>
+                <div style="position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:#0f1419;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;">${idx + 2}</div>
+                <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,0.02);">
+                    <div style="font-size:12px;color:#0f1419;line-height:1.55;white-space:pre-wrap;">${escapeHtml(t)}</div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:6px;border-top:1px solid #f1f5f9;font-size:10px;color:#64748b;">
+                        <span>Thread ${idx + 2}/${(data.thread || []).length + 1}</span>
+                        <span style="font-family:monospace;color:${t.length > 280 ? '#e11d48' : '#10b981'};font-weight:600;">${t.length}/280 chars</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        const hashtagsHtml = (data.hashtags || []).map(h => `
+            <span style="display:inline-block;background:#f1f5f9;color:#1d9bf0;font-weight:600;font-size:10px;padding:3px 8px;border-radius:12px;margin:2px;">
+                ${escapeHtml(h.startsWith('#') ? h : '#' + h)}
+            </span>
+        `).join('');
+
+        body.innerHTML = `
+            <div style="max-width:760px;margin:0 auto;text-align:left;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                    <div><strong style="color:#0f1419;font-size:14px;">𝕏 / Twitter Optimized Thread</strong></div>
+                    <span style="font-size:10px;background:#f1f5f9;padding:3px 10px;border-radius:12px;color:#475569;font-weight:600;">1 Main Tweet + ${(data.thread || []).length} Thread Tweets</span>
+                </div>
+
+                <!-- Primary Tweet Card -->
+                <div style="position:relative;padding-left:28px;margin-bottom:14px;">
+                    <div style="position:absolute;left:8px;top:0;bottom:-14px;width:2px;background:#e2e8f0;"></div>
+                    <div style="position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:#1d9bf0;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;">1</div>
+                    <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:10px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,0.04);">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                            <div style="font-weight:700;font-size:12px;color:#0f1419;">InfoGen AI</div>
+                            <span style="color:#1d9bf0;font-size:12px;">✓</span>
+                            <span style="color:#64748b;font-size:11px;">@InfoGenAI</span>
+                        </div>
+                        <div style="font-size:13px;color:#0f1419;line-height:1.6;white-space:pre-wrap;font-weight:500;">
+                            ${escapeHtml(data.primary_post || '')}
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:10px;color:#64748b;">
+                            <span>Main Tweet</span>
+                            <span style="font-family:monospace;color:${(data.primary_post || '').length > 280 ? '#e11d48' : '#10b981'};font-weight:600;">${(data.primary_post || '').length}/280 chars</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thread Tweets -->
+                ${threadHtml}
+
+                ${data.key_indicators && data.key_indicators.length ? `
+                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin:14px 0 10px 28px;">
+                        <strong style="font-size:10px;color:#475569;text-transform:uppercase;display:block;margin-bottom:6px;">Key Indicators:</strong>
+                        ${data.key_indicators.map(ki => '<div style="font-size:11px;color:#334155;margin-bottom:3px;">• ' + escapeHtml(ki) + '</div>').join('')}
+                    </div>
+                ` : ''}
+
+                ${hashtagsHtml ? `<div style="margin-left:28px;margin-top:10px;">${hashtagsHtml}</div>` : ''}
+            </div>
+        `;
+    } else if (outputKey === "summary") {
+        const takeawaysHtml = (data.key_takeaways || []).map((kt, i) => `
+            <div style="background:#f8fafc;border-left:3px solid #2563eb;padding:10px 14px;margin-bottom:8px;border-radius:0 8px 8px 0;font-size:11px;color:#1e293b;line-height:1.5;">
+                <strong>Takeaway ${i + 1}:</strong> ${escapeHtml(kt)}
+            </div>
+        `).join('');
+
+        const actionsHtml = (data.recommended_actions || []).map((ra, i) => `
+            <tr>
+                <td style="padding:10px;border-bottom:1px solid #edf2f7;font-size:11px;font-weight:600;color:#1e293b;">${i + 1}. ${escapeHtml(ra.action || '')}</td>
+                <td style="padding:10px;border-bottom:1px solid #edf2f7;font-size:10px;">
+                    <span style="background:${ra.priority === 'HIGH' ? '#fee2e2' : '#e0f2fe'};color:${ra.priority === 'HIGH' ? '#b91c1c' : '#0369a1'};font-weight:700;padding:2px 8px;border-radius:10px;">${escapeHtml(ra.priority || 'MEDIUM')}</span>
+                </td>
+                <td style="padding:10px;border-bottom:1px solid #edf2f7;font-size:10px;color:#64748b;font-weight:600;">${escapeHtml(ra.timeline || 'short-term')}</td>
+            </tr>
+        `).join('');
+
+        body.innerHTML = `
+            <div style="max-width:880px;margin:0 auto;text-align:left;">
+                <!-- Executive Header Card -->
+                <div style="background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;border-radius:10px;padding:20px 24px;margin-bottom:16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;">
+                        <span style="font-size:10px;font-weight:700;background:rgba(255,255,255,0.15);padding:3px 10px;border-radius:12px;text-transform:uppercase;letter-spacing:0.5px;">Executive Briefing</span>
+                        ${data.priority ? `<span style="background:#e11d48;color:#fff;font-weight:700;font-size:10px;padding:3px 10px;border-radius:12px;">Priority: ${escapeHtml(data.priority)}</span>` : ''}
+                    </div>
+                    <div style="font-weight:700;font-size:18px;line-height:1.4;margin-bottom:6px;">${escapeHtml(data.headline || 'Executive Briefing & Strategic Overview')}</div>
+                </div>
+
+                <!-- Key Takeaways Grid -->
+                <div style="margin-bottom:18px;">
+                    <strong style="font-size:12px;color:#334155;text-transform:uppercase;display:block;margin-bottom:8px;">Strategic Takeaways</strong>
+                    ${takeawaysHtml}
+                </div>
+
+                <!-- Context & Findings Grid -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:16px;">
+                    ${data.context ? `
+                        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
+                            <strong style="font-size:11px;color:#2563eb;text-transform:uppercase;display:block;margin-bottom:6px;">Situation & Context</strong>
+                            <div style="font-size:11px;color:#475569;line-height:1.55;">${escapeHtml(data.context)}</div>
+                        </div>
+                    ` : ''}
+                    ${data.business_impact ? `
+                        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
+                            <strong style="font-size:11px;color:#059669;text-transform:uppercase;display:block;margin-bottom:6px;">Business Impact</strong>
+                            <div style="font-size:11px;color:#475569;line-height:1.55;">${escapeHtml(data.business_impact)}</div>
+                        </div>
+                    ` : ''}
+                </div>
+
+                <!-- Major Findings & Risks -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:16px;">
+                    ${data.major_findings && data.major_findings.length ? `
+                        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
+                            <strong style="font-size:11px;color:#475569;text-transform:uppercase;display:block;margin-bottom:6px;">Major Findings</strong>
+                            ${data.major_findings.map(mf => '<div style="font-size:11px;color:#334155;margin-bottom:4px;">• ' + escapeHtml(mf) + '</div>').join('')}
+                        </div>
+                    ` : ''}
+                    ${data.risks && data.risks.length ? `
+                        <div style="background:#fff;border:1px solid #fed7aa;background:#fffaf5;border-radius:8px;padding:14px;">
+                            <strong style="font-size:11px;color:#ea580c;text-transform:uppercase;display:block;margin-bottom:6px;">⚠️ Key Risks</strong>
+                            ${data.risks.map(r => '<div style="font-size:11px;color:#9a3412;margin-bottom:4px;">• ' + escapeHtml(r) + '</div>').join('')}
+                        </div>
+                    ` : ''}
+                </div>
+
+                <!-- Recommended Actions Table -->
+                ${actionsHtml ? `
+                    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:16px;">
+                        <strong style="font-size:12px;color:#1e293b;text-transform:uppercase;display:block;margin-bottom:10px;">Recommended Action Plan</strong>
+                        <table style="width:100%;border-collapse:collapse;">
+                            <thead>
+                                <tr style="background:#f8fafc;color:#64748b;font-size:10px;text-align:left;">
+                                    <th style="padding:8px 10px;">Action Item</th>
+                                    <th style="padding:8px 10px;">Priority</th>
+                                    <th style="padding:8px 10px;">Timeline</th>
+                                </tr>
+                            </thead>
+                            <tbody>${actionsHtml}</tbody>
+                        </table>
+                    </div>
+                ` : ''}
+
+                ${data.conclusion ? `
+                    <div style="background:#f1f5f9;border-radius:8px;padding:12px 16px;font-size:11px;color:#334155;line-height:1.5;">
+                        <strong>Conclusion:</strong> ${escapeHtml(data.conclusion)}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    } else if (outputKey === "infographic") {
+        const statsHtml = (data.key_statistics || []).map(ks => `
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.03);">
+                <div style="font-size:24px;font-weight:800;color:#2563eb;margin-bottom:4px;">${escapeHtml(ks.value || '')}</div>
+                <div style="font-size:11px;font-weight:600;color:#1e293b;line-height:1.4;">${escapeHtml(ks.label || '')}</div>
+                ${ks.source_reference ? `<div style="font-size:9px;color:#94a3b8;margin-top:4px;">Ref: ${escapeHtml(ks.source_reference)}</div>` : ''}
+            </div>
+        `).join('');
+
+        const messagesHtml = (data.key_messages || []).map((km, i) => `
+            <div style="background:#eff6ff;border-left:3px solid #3b82f6;border-radius:0 8px 8px 0;padding:8px 12px;margin-bottom:6px;font-size:11px;color:#1e40af;">
+                <strong>${i + 1}.</strong> ${escapeHtml(km)}
+            </div>
+        `).join('');
+
+        const sectionsHtml = (data.sections || []).map(sec => `
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <strong style="font-size:12px;color:#1e293b;">${escapeHtml(sec.section_title || '')}</strong>
+                    <span style="font-size:9px;font-weight:700;background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:10px;text-transform:uppercase;">${escapeHtml(sec.visual_element || 'visual')}</span>
+                </div>
+                <div style="font-size:11px;color:#475569;line-height:1.55;margin-bottom:8px;">${escapeHtml(sec.content || '')}</div>
+                ${sec.data_points && sec.data_points.length ? `
+                    <div style="background:#f8fafc;border-radius:6px;padding:6px 10px;">
+                        ${sec.data_points.map(dp => '<div style="font-size:10px;color:#64748b;">• ' + escapeHtml(dp) + '</div>').join('')}
+                    </div>
+                ` : ''}
+            </div>
+        `).join('');
+
+        const colors = data.color_recommendations || {};
+
+        body.innerHTML = `
+            <div style="max-width:880px;margin:0 auto;text-align:left;">
+                <!-- Infographic Title Banner -->
+                <div style="background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;border-radius:10px;padding:20px;text-align:center;margin-bottom:16px;">
+                    <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;opacity:0.85;margin-bottom:4px;">Visual Infographic Blueprint</div>
+                    <div style="font-size:20px;font-weight:800;margin-bottom:6px;">${escapeHtml(data.title || 'Executive Infographic Architecture')}</div>
+                    ${data.subtitle ? `<div style="font-size:12px;opacity:0.9;">${escapeHtml(data.subtitle)}</div>` : ''}
+                </div>
+
+                <!-- Key Statistics Row -->
+                ${statsHtml ? `
+                    <div style="margin-bottom:16px;">
+                        <strong style="font-size:11px;color:#475569;text-transform:uppercase;display:block;margin-bottom:8px;">Core Data Anchors & Metrics</strong>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">${statsHtml}</div>
+                    </div>
+                ` : ''}
+
+                <!-- Key Messaging -->
+                ${messagesHtml ? `
+                    <div style="margin-bottom:16px;">
+                        <strong style="font-size:11px;color:#475569;text-transform:uppercase;display:block;margin-bottom:6px;">Core Messaging Pillars</strong>
+                        ${messagesHtml}
+                    </div>
+                ` : ''}
+
+                <!-- Visual Sections -->
+                ${sectionsHtml ? `
+                    <div style="margin-bottom:16px;">
+                        <strong style="font-size:11px;color:#475569;text-transform:uppercase;display:block;margin-bottom:8px;">Infographic Visual Sections</strong>
+                        ${sectionsHtml}
+                    </div>
+                ` : ''}
+
+                <!-- Design & Palette Specifications -->
+                <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:14px;">
+                    <strong style="font-size:11px;color:#1e293b;text-transform:uppercase;display:block;margin-bottom:8px;">Design & Color Palette</strong>
+                    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
+                        ${colors.primary ? `<div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:20px;border-radius:4px;background:${colors.primary};border:1px solid #ccc;"></div><span style="font-size:10px;font-family:monospace;">${colors.primary} (Primary)</span></div>` : ''}
+                        ${colors.secondary ? `<div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:20px;border-radius:4px;background:${colors.secondary};border:1px solid #ccc;"></div><span style="font-size:10px;font-family:monospace;">${colors.secondary} (Secondary)</span></div>` : ''}
+                        ${colors.accent ? `<div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:20px;border-radius:4px;background:${colors.accent};border:1px solid #ccc;"></div><span style="font-size:10px;font-family:monospace;">${colors.accent} (Accent)</span></div>` : ''}
+                    </div>
+                    ${colors.rationale ? `<div style="font-size:10px;color:#64748b;line-height:1.4;">Rationale: ${escapeHtml(colors.rationale)}</div>` : ''}
+                    ${data.layout ? `<div style="font-size:10px;color:#334155;margin-top:6px;"><strong>Recommended Layout:</strong> ${escapeHtml(data.layout)}</div>` : ''}
+                </div>
+            </div>
+        `;
+    } else {
+        // Generic structured display fallback
+        body.innerHTML = `<div class="subtitle" style="max-width:900px;text-align:left;white-space:pre-wrap;">
+            ${typeof data === 'string' ? escapeHtml(data) : formatObject(data)}</div>`;
+    }
+}
+
+function formatObject(obj) {
+    if (typeof obj === 'string') return escapeHtml(obj);
+    let html = '';
+    for (const [key, value] of Object.entries(obj)) {
+        const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        if (Array.isArray(value)) {
+            html += `<div style="margin-bottom:10px"><strong>${label}:</strong><br>${value.map(v => typeof v === 'object' ? formatObject(v) : '• ' + escapeHtml(String(v))).join('<br>')}</div>`;
+        } else if (typeof value === 'object' && value !== null) {
+            html += `<div style="margin-bottom:10px"><strong>${label}:</strong><br>${formatObject(value)}</div>`;
+        } else {
+            html += `<div style="margin-bottom:6px"><strong>${label}:</strong> ${escapeHtml(String(value))}</div>`;
+        }
+    }
+    return html;
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// INTERACTIVE VIDEO PLAYER & SYNTHESIS ENGINE
+// ═══════════════════════════════════════════════════════════════════════
+
+let currentVideoData = null;
+let currentSceneIndex = 0;
+let isVideoPlaying = false;
+let isVoiceEnabled = true;
+let videoAnimId = null;
+let sceneStartTime = 0;
+let sceneDurationMs = 12000;
+let videoParticles = [];
+let isExporting = false;
+
+function initParticles() {
+    videoParticles = [];
+    for (let i = 0; i < 45; i++) {
+        videoParticles.push({
+            x: Math.random() * 960,
+            y: Math.random() * 540,
+            radius: Math.random() * 2.2 + 0.8,
+            vx: (Math.random() - 0.5) * 0.45,
+            vy: (Math.random() - 0.5) * 0.45,
+            alpha: Math.random() * 0.5 + 0.2
+        });
+    }
+}
+
+function initVideoPlayer(data) {
+    if (!data || !data.scenes || !data.scenes.length) return;
+    currentVideoData = data;
+    currentSceneIndex = 0;
+    isVideoPlaying = false;
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    if (videoAnimId) cancelAnimationFrame(videoAnimId);
+    initParticles();
+
+    // Render Scene Navigation Pills
+    const pillsContainer = document.getElementById("videoScenePills");
+    if (pillsContainer && data.scenes) {
+        pillsContainer.innerHTML = data.scenes.map((s, idx) => `
+            <button class="copy-btn" onclick="jumpToScene(${idx})" id="scenePill_${idx}"
+                style="font-size:10px;padding:5px 12px;border-radius:6px;white-space:nowrap;background:${idx === 0 ? '#5b7cfa' : '#172033'};color:${idx === 0 ? '#fff' : '#94a3b8'};border:1px solid ${idx === 0 ? '#5b7cfa' : '#334155'};transition:all 0.2s ease;">
+                Scene ${s.scene_number}: ${(s.title || '').replace(/^Scene\s*\d+:\s*/i, '').slice(0, 20) || 'Overview'}
+            </button>
+        `).join('');
+    }
+
+    renderSceneFrame(0, 0);
+    updateVideoControlsUI();
+    updateTimeDisplay(0, 0);
+}
+
+function renderSceneFrame(sceneIdx, progressPercent) {
+    const canvas = document.getElementById("videoPlayerCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const data = currentVideoData;
+    if (!data || !data.scenes || !data.scenes[sceneIdx]) return;
+    const scene = data.scenes[sceneIdx];
+    const totalScenes = data.scenes.length;
+
+    const w = 960;
+    const h = 540;
+
+    // 1. Background Gradient
+    const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 80, w / 2, h / 2, 580);
+    bgGrad.addColorStop(0, "#131d36");
+    bgGrad.addColorStop(0.65, "#0a1122");
+    bgGrad.addColorStop(1, "#040711");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    // 2. Animated Floating Particles
+    ctx.fillStyle = "#60a5fa";
+    videoParticles.forEach(p => {
+        if (isVideoPlaying || isExporting) {
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0) p.x = w;
+            if (p.x > w) p.x = 0;
+            if (p.y < 0) p.y = h;
+            if (p.y > h) p.y = 0;
+        }
+        ctx.globalAlpha = p.alpha * 0.7;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1.0;
+
+    // 3. Subtle Cyber Grid Overlay
+    ctx.strokeStyle = "rgba(91, 124, 250, 0.04)";
+    ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 48) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+    }
+    for (let y = 0; y < h; y += 48) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+    }
+
+    // 4. Header Bar
+    // Brand Watermark (top-left)
+    ctx.font = "bold 12px Inter, sans-serif";
+    ctx.fillStyle = "#5b7cfa";
+    ctx.fillText("▣  INFOGEN AI", 36, 40);
+    ctx.font = "11px Inter, sans-serif";
+    ctx.fillStyle = "#64748b";
+    ctx.fillText("•  VIDEO INTELLIGENCE", 146, 40);
+
+    // Scene Badge (top-right)
+    const badgeText = `SCENE ${scene.scene_number} OF ${totalScenes}  •  ${scene.start_time || '00:00'} - ${scene.end_time || '00:15'}`;
+    ctx.font = "bold 11px Inter, monospace";
+    const badgeWidth = ctx.measureText(badgeText).width + 24;
+    ctx.fillStyle = "rgba(30, 41, 59, 0.8)";
+    ctx.beginPath();
+    ctx.roundRect(w - 36 - badgeWidth, 24, badgeWidth, 26, 13);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(91, 124, 250, 0.4)";
+    ctx.stroke();
+    ctx.fillStyle = "#93c5fd";
+    ctx.fillText(badgeText, w - 36 - badgeWidth + 12, 41);
+
+    // 5. Main Glassmorphic Slide Card
+    const cardX = 48;
+    const cardY = 68;
+    const cardW = w - 96;
+    const cardH = 360;
+
+    ctx.fillStyle = "rgba(15, 23, 42, 0.72)";
+    ctx.beginPath();
+    ctx.roundRect(cardX, cardY, cardW, cardH, 14);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.15)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Scene Title inside Card
+    ctx.font = "bold 24px Inter, sans-serif";
+    ctx.fillStyle = "#f8fafc";
+    const cleanTitle = (scene.title || `Scene ${scene.scene_number}`).replace(/^Scene\s*\d+:\s*/i, '');
+    ctx.fillText(cleanTitle, cardX + 36, cardY + 50);
+
+    // Camera & Visual Direction Pills
+    const cameraText = `🎥 ${scene.camera || 'Dynamic Transition'}`;
+    ctx.font = "11px Inter, sans-serif";
+    ctx.fillStyle = "rgba(91, 124, 250, 0.18)";
+    const camW = ctx.measureText(cameraText).width + 20;
+    ctx.beginPath();
+    ctx.roundRect(cardX + 36, cardY + 70, camW, 22, 6);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(91, 124, 250, 0.45)";
+    ctx.stroke();
+    ctx.fillStyle = "#93c5fd";
+    ctx.fillText(cameraText, cardX + 46, cardY + 85);
+
+    if (scene.visual) {
+        const visText = `🎨 ${scene.visual.slice(0, 68)}${scene.visual.length > 68 ? '...' : ''}`;
+        const visW = ctx.measureText(visText).width + 20;
+        ctx.fillStyle = "rgba(51, 65, 85, 0.6)";
+        ctx.beginPath();
+        ctx.roundRect(cardX + 44 + camW, cardY + 70, visW, 22, 6);
+        ctx.fill();
+        ctx.fillStyle = "#cbd5e1";
+        ctx.fillText(visText, cardX + 54 + camW, cardY + 85);
+    }
+
+    // On-Screen Key Takeaway Graphic / Focus Box
+    const boxY = cardY + 112;
+    const boxH = 205;
+    const boxGrad = ctx.createLinearGradient(cardX + 36, boxY, cardX + cardW - 36, boxY + boxH);
+    boxGrad.addColorStop(0, "rgba(30, 41, 59, 0.85)");
+    boxGrad.addColorStop(1, "rgba(15, 23, 42, 0.95)");
+    ctx.fillStyle = boxGrad;
+    ctx.beginPath();
+    ctx.roundRect(cardX + 36, boxY, cardW - 72, boxH, 10);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(56, 189, 248, 0.35)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Callout badge in focus box
+    ctx.fillStyle = "#38bdf8";
+    ctx.font = "bold 10px Inter, sans-serif";
+    ctx.fillText("CORE ON-SCREEN INTELLIGENCE", cardX + 60, boxY + 30);
+
+    // Headline / On-screen text
+    const displayHeadline = scene.on_screen_text || scene.title || data.title || "Key Analytical Findings";
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 19px Inter, sans-serif";
+    wrapText(ctx, displayHeadline, cardX + 60, boxY + 62, cardW - 120, 26);
+
+    // Fact / Narration Highlight snippet
+    if (scene.narration) {
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "13px Inter, sans-serif";
+        const snippet = scene.narration.length > 150 ? scene.narration.slice(0, 150) + '...' : scene.narration;
+        wrapText(ctx, snippet, cardX + 60, boxY + 124, cardW - 120, 20);
+    }
+
+    // 6. Subtitle / Closed Caption Bar (Pinned to Bottom)
+    ctx.fillStyle = "rgba(4, 7, 17, 0.92)";
+    ctx.fillRect(0, h - 85, w, 81);
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.15)";
+    ctx.beginPath();
+    ctx.moveTo(0, h - 85);
+    ctx.lineTo(w, h - 85);
+    ctx.stroke();
+
+    // Narration Subtitle Text
+    ctx.font = "500 15px Inter, sans-serif";
+    ctx.fillStyle = "#f8fafc";
+    ctx.textAlign = "center";
+    const subText = scene.narration || cleanTitle;
+    const maxSubLen = 110;
+    const subDisplay = subText.length > maxSubLen ? subText.slice(0, maxSubLen) + '...' : subText;
+    ctx.fillText(`"${subDisplay}"`, w / 2, h - 42);
+    ctx.textAlign = "left";
+
+    // 7. Video Overall Progress Bar (Very bottom 4px)
+    const overallProgress = (sceneIdx + progressPercent) / totalScenes;
+    ctx.fillStyle = "#1e293b";
+    ctx.fillRect(0, h - 4, w, 4);
+
+    const progGrad = ctx.createLinearGradient(0, 0, w, 0);
+    progGrad.addColorStop(0, "#5b7cfa");
+    progGrad.addColorStop(1, "#38bdf8");
+    ctx.fillStyle = progGrad;
+    ctx.fillRect(0, h - 4, w * Math.min(1.0, Math.max(0, overallProgress)), 4);
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = (text || "").split(' ');
+    let line = '';
+    let curY = y;
+    for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && n > 0) {
+            ctx.fillText(line.trim(), x, curY);
+            line = words[n] + ' ';
+            curY += lineHeight;
+        } else {
+            line = testLine;
+        }
+    }
+    ctx.fillText(line.trim(), x, curY);
+}
+
+function toggleVideoPlayback() {
+    if (isVideoPlaying) {
+        pauseVideo();
+    } else {
+        playVideo();
+    }
+}
+
+function playVideo() {
+    if (!currentVideoData || !currentVideoData.scenes || !currentVideoData.scenes.length) return;
+    isVideoPlaying = true;
+    const overlay = document.getElementById("videoPlayOverlay");
+    if (overlay) overlay.style.display = "none";
+    const playBtn = document.getElementById("videoPlayBtn");
+    if (playBtn) {
+        playBtn.innerHTML = "⏸ Pause";
+        playBtn.style.background = "#e11d48";
+    }
+
+    startScenePlayback(currentSceneIndex);
+}
+
+function pauseVideo() {
+    isVideoPlaying = false;
+    const playBtn = document.getElementById("videoPlayBtn");
+    if (playBtn) {
+        playBtn.innerHTML = "▶ Resume";
+        playBtn.style.background = "#5b7cfa";
+    }
+    if (window.speechSynthesis) window.speechSynthesis.pause();
+    if (videoAnimId) cancelAnimationFrame(videoAnimId);
+}
+
+function restartVideoPlayback() {
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    if (videoAnimId) cancelAnimationFrame(videoAnimId);
+    currentSceneIndex = 0;
+    playVideo();
+}
+
+function toggleVoiceNarration() {
+    isVoiceEnabled = !isVoiceEnabled;
+    const btn = document.getElementById("voiceToggleBtn");
+    if (btn) {
+        btn.innerHTML = isVoiceEnabled ? "🔊 Voice: ON" : "🔇 Voice: OFF";
+        btn.style.color = isVoiceEnabled ? "#38bdf8" : "#94a3b8";
+    }
+    if (!isVoiceEnabled && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+    }
+    showToast(isVoiceEnabled ? "Voice narration enabled" : "Voice narration muted");
+}
+
+function jumpToScene(idx) {
+    if (!currentVideoData || !currentVideoData.scenes || !currentVideoData.scenes[idx]) return;
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    if (videoAnimId) cancelAnimationFrame(videoAnimId);
+    currentSceneIndex = idx;
+    if (isVideoPlaying) {
+        startScenePlayback(idx);
+    } else {
+        renderSceneFrame(idx, 0);
+        updateVideoControlsUI();
+        updateTimeDisplay(idx, 0);
+    }
+}
+
+function startScenePlayback(sceneIdx) {
+    if (!currentVideoData || !currentVideoData.scenes) return;
+    if (sceneIdx >= currentVideoData.scenes.length) {
+        // Video finished
+        isVideoPlaying = false;
+        currentSceneIndex = 0;
+        updateVideoControlsUI();
+        const playBtn = document.getElementById("videoPlayBtn");
+        if (playBtn) { playBtn.innerHTML = "↺ Replay"; playBtn.style.background = "#1e7e34"; }
+        const overlay = document.getElementById("videoPlayOverlay");
+        if (overlay) overlay.style.display = "flex";
+        renderSceneFrame(0, 0);
+        showToast("Video playback complete!");
+        return;
+    }
+
+    currentSceneIndex = sceneIdx;
+    updateVideoControlsUI();
+
+    const scene = currentVideoData.scenes[sceneIdx];
+    const narrationText = scene.narration || scene.title || "Scene overview";
+
+    // Estimate duration from word count
+    const wordCount = narrationText.split(/\s+/).length;
+    sceneDurationMs = Math.max(7000, Math.min(22000, Math.round((wordCount / 2.2) * 1000)));
+    sceneStartTime = Date.now();
+
+    // Start Speech Synthesis
+    if (isVoiceEnabled && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(narrationText);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.onend = () => {
+            if (isVideoPlaying) {
+                setTimeout(() => jumpToScene(sceneIdx + 1), 500);
+            }
+        };
+        utterance.onerror = () => {};
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // Canvas animation loop
+    function loop() {
+        if (!isVideoPlaying) return;
+        const elapsed = Date.now() - sceneStartTime;
+        const progress = Math.min(1.0, elapsed / sceneDurationMs);
+        renderSceneFrame(sceneIdx, progress);
+        updateTimeDisplay(sceneIdx, progress);
+
+        // If voice is disabled or speech not supported, advance on timer
+        if (!isVoiceEnabled || !window.speechSynthesis) {
+            if (progress >= 1.0) {
+                jumpToScene(sceneIdx + 1);
+                return;
+            }
+        }
+
+        videoAnimId = requestAnimationFrame(loop);
+    }
+    videoAnimId = requestAnimationFrame(loop);
+}
+
+function updateVideoControlsUI() {
+    if (!currentVideoData || !currentVideoData.scenes) return;
+    currentVideoData.scenes.forEach((_, i) => {
+        const pill = document.getElementById(`scenePill_${i}`);
+        if (pill) {
+            pill.style.background = i === currentSceneIndex ? '#5b7cfa' : '#172033';
+            pill.style.color = i === currentSceneIndex ? '#fff' : '#94a3b8';
+            pill.style.borderColor = i === currentSceneIndex ? '#5b7cfa' : '#334155';
+        }
+    });
+}
+
+function updateTimeDisplay(sceneIdx, progress = 0) {
+    const disp = document.getElementById("videoTimeDisplay");
+    if (!disp || !currentVideoData || !currentVideoData.scenes) return;
+    const totalScenes = currentVideoData.scenes.length;
+    const totalEst = currentVideoData.duration_seconds || (totalScenes * 15);
+    const curSec = Math.floor(((sceneIdx + progress) / totalScenes) * totalEst);
+    const fmt = s => String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+    disp.textContent = `${fmt(curSec)} / ${fmt(totalEst)}`;
+}
+
+async function exportRecordedVideo() {
+    if (!currentVideoData || !currentVideoData.scenes || !currentVideoData.scenes.length) {
+        showToast("No video scenes available to export.");
+        return;
+    }
+
+    const canvas = document.getElementById("videoPlayerCanvas");
+    if (!canvas || !canvas.captureStream) {
+        showToast("Canvas recording not supported in this browser.");
+        return;
+    }
+
+    showToast("🎬 Recording video deliverable... please wait a moment");
+    isExporting = true;
+    const stream = canvas.captureStream(30);
+
+    let mime = "video/webm";
+    if (window.MediaRecorder && MediaRecorder.isTypeSupported("video/webm;codecs=vp9")) {
+        mime = "video/webm;codecs=vp9";
+    } else if (window.MediaRecorder && MediaRecorder.isTypeSupported("video/mp4")) {
+        mime = "video/mp4";
+    }
+
+    try {
+        const recorder = new MediaRecorder(stream, { mimeType: mime });
+        const chunks = [];
+
+        recorder.ondataavailable = e => {
+            if (e.data && e.data.size > 0) chunks.push(e.data);
+        };
+
+        recorder.onstop = () => {
+            isExporting = false;
+            const blob = new Blob(chunks, { type: mime });
+            const ext = mime.includes("mp4") ? "mp4" : "webm";
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `InfoGen_Video_Package_${new Date().toISOString().slice(0, 10)}.${ext}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            renderSceneFrame(0, 0);
+            showToast(`✓ Playable Video (.${ext}) downloaded!`);
+        };
+
+        recorder.start();
+
+        // Step smoothly through all scenes (60 frames per scene ~2 sec each for fast export)
+        const scenes = currentVideoData.scenes;
+        for (let s = 0; s < scenes.length; s++) {
+            for (let frame = 0; frame < 60; frame++) {
+                renderSceneFrame(s, frame / 60);
+                await new Promise(r => setTimeout(r, 33));
+            }
+        }
+
+        recorder.stop();
+    } catch (e) {
+        console.error("Export error:", e);
+        isExporting = false;
+        showToast("Export failed: " + e.message);
+    }
+}
+
+function downloadVideoSubtitles() {
+    if (!currentVideoData || !currentVideoData.vtt) {
+        showToast("No VTT subtitles available.");
+        return;
+    }
+    downloadFile("video_subtitles.vtt", currentVideoData.vtt, "text/vtt;charset=utf-8");
+    showToast("VTT Subtitles downloaded!");
+}
+
+function downloadVideoScript() {
+    if (!currentVideoData) return;
+    const d = currentVideoData;
+    const text = `VIDEO TITLE: ${d.title || 'Video Package'}\nAUDIENCE: ${d.target_audience || ''}\nDURATION: ${d.duration_seconds || 60}s\n\nNARRATION SCRIPT:\n${d.script || ''}\n\nSCENES:\n` +
+        (d.scenes || []).map(s => `[Scene ${s.scene_number}] (${s.start_time} - ${s.end_time})\nTitle: ${s.title}\nNarration: ${s.narration}\nVisual Direction: ${s.visual}\nCamera Direction: ${s.camera}\nOn-Screen Text: ${s.on_screen_text || 'N/A'}\n`).join('\n');
+    downloadFile("video_production_script.txt", text, "text/plain;charset=utf-8");
+    showToast("Video production script downloaded!");
+}
+
+/* Generate - Real Backend */
+
+document.getElementById("generateBtn").addEventListener("click", async () => {
+    const n = checks.filter(c => c.checked).length;
+    const hasText = sourceText.value.trim().length > 0;
+    const hasFiles = uploadedFiles.length > 0;
+
+    if (!hasText && !hasFiles) {
+        showToast("Please add source content first.");
+        scrollToId("source");
+        return;
+    }
+
+    if (!n) {
+        showToast("Select at least one output format.");
+        scrollToId("outputs");
+        return;
+    }
+
+    const btn = document.getElementById("generateBtn");
+    const selectedOutputs = checks.filter(c => c.checked).map(c => c.value);
+
+    isGenerating = true;
+    setFormatHubLocked(true);
+    btn.disabled = true;
+    btn.innerHTML = `⚙ &nbsp; Synthesizing Deliverables...`;
+    startProgressTimer(n);
+
+    try {
+        let response;
+
+        const API_BASE = window.location.protocol.startsWith("http") ? "" : "http://127.0.0.1:8000";
+
+        if (hasFiles) {
+            // Use multipart/form-data to send files + parameters
+            const formData = new FormData();
+            if (hasText) formData.append("source_text", sourceText.value.trim());
+            formData.append("audience", document.getElementById("audience")?.value || "");
+            formData.append("tone", document.getElementById("tone")?.value || "");
+            formData.append("language", document.getElementById("language")?.value || "");
+            formData.append("detail", document.getElementById("detail")?.value || "");
+            formData.append("objective", document.getElementById("objective")?.value || "");
+            formData.append("output_format", selectedOutputs.join(", "));
+            uploadedFiles.forEach(f => formData.append("files", f));
+
+            response = await fetch(`${API_BASE}/api/generate`, {
+                method: "POST",
+                body: formData
+            });
+        } else {
+            // Text-only: use JSON
+            const requestData = {
+                source: sourceText.value.trim(),
+                audience: document.getElementById("audience")?.value || "",
+                tone: document.getElementById("tone")?.value || "",
+                language: document.getElementById("language")?.value || "",
+                detail: document.getElementById("detail")?.value || "",
+                objective: document.getElementById("objective")?.value || "",
+                output_format: selectedOutputs.join(", ")
+            };
+
+            response = await fetch(`${API_BASE}/api/generate`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestData)
+            });
+        }
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error?.message || "Backend error: " + response.status);
+        }
+
+        const result = await response.json();
+        console.log("BACKEND RESULT:", result);
+
+        generatedOutput = result.output || "";
+        generatedOutputs = result.outputs || {};
+
+        stopProgressTimer();
+
+        // Show the first selected output tab that has actual generated content
+        let targetNavKey = null;
+        for (const [navKey, dataKey] of Object.entries(OUTPUT_KEY_MAP)) {
+            if (generatedOutputs[dataKey]) {
+                targetNavKey = navKey;
+                break;
+            }
+        }
+        if (!targetNavKey) {
+            targetNavKey = Object.keys(OUTPUT_KEY_MAP)[0] || "video";
+        }
+
+        document.querySelectorAll(".output-nav button").forEach(b => b.classList.remove("active"));
+        const targetBtn = document.querySelector(`.output-nav button[data-output="${targetNavKey}"]`);
+        if (targetBtn) {
+            targetBtn.classList.add("active");
+        }
+        renderOutput(targetNavKey);
+
+        document.getElementById("generatedStatus").textContent =
+            `${n} Output Format${n === 1 ? "" : "s"} Generated`;
+
+        // Enable download and copy buttons
+        const dlCurr = document.getElementById("downloadCurrentBtn");
+        const dlAll = document.getElementById("downloadAllBtn");
+        const cpBtn = document.getElementById("copyPreviewBtn");
+        const newBtn = document.getElementById("newTransformBtn");
+
+        if (dlCurr) { dlCurr.disabled = false; dlCurr.style.opacity = "1"; dlCurr.style.cursor = "pointer"; }
+        if (dlAll) { dlAll.disabled = false; dlAll.style.opacity = "1"; dlAll.style.cursor = "pointer"; }
+        if (cpBtn) { cpBtn.disabled = false; cpBtn.style.opacity = "1"; cpBtn.style.cursor = "pointer"; }
+        if (newBtn) { newBtn.style.display = "inline-flex"; }
+
+        // 1. Smoothly scroll down and redirect user to generated deliverables
+        scrollToId("generated");
+        const previewCard = document.querySelector(".preview-card");
+        if (previewCard) {
+            previewCard.style.boxShadow = "0 0 0 3px rgba(91, 124, 250, 0.4), 0 14px 40px rgba(38,53,74,0.12)";
+            previewCard.style.borderColor = "#5b7cfa";
+            setTimeout(() => {
+                previewCard.style.boxShadow = "";
+                previewCard.style.borderColor = "";
+            }, 3000);
+        }
+
+        // 2. Show output success banner
+        const banner = document.getElementById("outputSuccessBanner");
+        if (banner) banner.style.display = "flex";
+
+        // 3. Reset source inputs so user can easily add another file or text
+        sourceText.value = "";
+        sourceInput.value = "";
+        sourceFiles.innerHTML = "";
+        uploadedFiles = [];
+        updateCount();
+
+        showToast("Deliverables ready! Source reset for next upload.");
+
+    } catch (error) {
+        console.error("GENERATION ERROR:", error);
+        stopProgressTimer();
+        showToast(error.message || "Could not generate content. Ensure backend is running.");
+    } finally {
+        isGenerating = false;
+        setFormatHubLocked(false);
+        btn.disabled = false;
+        const currentCount = checks.filter(c => c.checked).length;
+        btn.innerHTML = `Generate <span id="generateCount">${currentCount}</span> Selected Deliverables`;
+    }
+});
+
+/* Output navigation — per-format rendering */
+
+document.querySelectorAll(".output-nav button[data-output]").forEach(btn => {
+    btn.addEventListener("click", () => {
+        if (!generatedOutput && Object.keys(generatedOutputs).length === 0) {
+            showToast("Please generate content first.");
+            return;
+        }
+        document.querySelectorAll(".output-nav button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderOutput(btn.dataset.output);
+    });
+});
+
+function copyPreview(){
+    if (!generatedOutput && Object.keys(generatedOutputs).length === 0) {
+        showToast("Please generate content first.");
+        return;
+    }
+    const text=document.getElementById("previewTitle").textContent+"\n\n"+document.getElementById("previewBody").innerText;
+    navigator.clipboard?.writeText(text).then(()=>showToast("Output copied to clipboard.")).catch(()=>showToast("Copy is not available in this browser."));
+}
+function downloadFile(filename, text, mimeType = "text/plain;charset=utf-8") {
+    const blob = new Blob([text], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`Downloaded ${filename}`);
+}
+
+function getActiveFormatKey() {
+    const activeBtn = document.querySelector(".output-nav button.active");
+    return activeBtn ? activeBtn.dataset.output : "video";
+}
+
+function formatDeliverableAsMarkdown(outputKey, data) {
+    if (!data) return "";
+    if (typeof data === "string") return data;
+    
+    if (outputKey === "video") {
+        let md = `# ${data.title || 'Video Package'}\n\n`;
+        md += `**Target Audience:** ${data.target_audience || ''}\n`;
+        md += `**Objective:** ${data.objective || ''}\n`;
+        md += `**Estimated Duration:** ${data.duration_seconds || 90}s\n\n`;
+        md += `## Narration Script\n\n${data.script || ''}\n\n`;
+        md += `## Production Storyboard\n\n`;
+        (data.scenes || []).forEach(s => {
+            md += `### Scene ${s.scene_number}: ${s.title || ''} (${s.start_time || ''} - ${s.end_time || ''})\n`;
+            md += `- **Narration:** ${s.narration || ''}\n`;
+            md += `- **Visual:** ${s.visual || ''}\n`;
+            md += `- **Camera Direction:** ${s.camera || ''}\n`;
+            if (s.on_screen_text) md += `- **On-Screen Text:** ${s.on_screen_text}\n`;
+            md += `\n`;
+        });
+        if (data.vtt) md += `## Subtitles (VTT)\n\n\`\`\`vtt\n${data.vtt}\n\`\`\`\n\n`;
+        if (data.cta) md += `**Call To Action:** ${data.cta}\n`;
+        return md;
+    }
+    
+    if (outputKey === "advisory") {
+        let md = `# ${data.title || 'Cyber Threat Advisory'}\n\n`;
+        md += `**Severity:** ${data.severity || 'INFORMATIONAL'} | **Confidence Level:** ${data.confidence_level || 'MEDIUM'}\n\n`;
+        md += `## Executive Overview\n\n${data.executive_overview || ''}\n\n`;
+        md += `## Threat / Incident Description\n\n${data.threat_description || ''}\n\n`;
+        if (data.affected_systems && data.affected_systems.length) {
+            md += `## Affected Systems & Entities\n\n` + data.affected_systems.map(s => `- ${s}`).join('\n') + `\n\n`;
+        }
+        if (data.indicators && data.indicators.length) {
+            md += `## Technical Indicators (IOCs)\n\n` + data.indicators.map(i => `- \`${i}\``).join('\n') + `\n\n`;
+        }
+        if (data.impact) md += `## Impact Assessment\n\n${data.impact}\n\n`;
+        if (data.immediate_actions && data.immediate_actions.length) {
+            md += `## Immediate Actions Required\n\n` + data.immediate_actions.map((a, i) => `${i+1}. ${a}`).join('\n') + `\n\n`;
+        }
+        if (data.mitigation && data.mitigation.length) {
+            md += `## Mitigation Strategy\n\n` + data.mitigation.map((m, i) => `${i+1}. ${m}`).join('\n') + `\n\n`;
+        }
+        return md;
+    }
+    
+    if (outputKey === "summary") {
+        let md = `# ${data.headline || 'Executive Briefing'}\n\n`;
+        md += `**Priority:** ${data.priority || 'MEDIUM'}\n\n`;
+        md += `## Key Takeaways\n\n` + (data.key_takeaways || []).map(t => `- ${t}`).join('\n') + `\n\n`;
+        md += `## Situation & Context\n\n${data.context || ''}\n\n`;
+        md += `## Business / Organizational Impact\n\n${data.business_impact || ''}\n\n`;
+        if (data.recommended_actions && data.recommended_actions.length) {
+            md += `## Recommended Actions\n\n` + data.recommended_actions.map((a, i) => `${i+1}. **[${a.priority || 'MEDIUM'}]** ${a.action} _(${a.timeline || 'short-term'})_`).join('\n') + `\n\n`;
+        }
+        md += `## Conclusion\n\n${data.conclusion || ''}\n`;
+        return md;
+    }
+    
+    if (outputKey === "presentation") {
+        let md = `# ${data.title || 'Presentation Deck'}\n\n`;
+        (data.slides || []).forEach(s => {
+            md += `## Slide ${s.slide_number}: ${s.title || ''}\n`;
+            md += `*Purpose:* ${s.purpose || ''}\n\n`;
+            if (s.key_points && s.key_points.length) {
+                md += s.key_points.map(p => `- ${p}`).join('\n') + '\n\n';
+            }
+            if (s.body_content) md += `${s.body_content}\n\n`;
+            if (s.visual_recommendation) md += `> **Visual Direction:** ${s.visual_recommendation}\n\n`;
+            if (s.speaker_notes) md += `**Speaker Notes:** ${s.speaker_notes}\n\n`;
+            md += `---\n\n`;
+        });
+        return md;
+    }
+
+    if (outputKey === "linkedin") {
+        let md = `## LinkedIn Post\n\n`;
+        md += `**Hook:** ${data.hook || ''}\n\n`;
+        md += `${data.post || ''}\n\n`;
+        if (data.hashtags && data.hashtags.length) md += `${data.hashtags.join(' ')}\n\n`;
+        if (data.carousel_slides && data.carousel_slides.length) {
+            md += `### Carousel Messaging\n\n`;
+            data.carousel_slides.forEach(c => {
+                md += `**Slide ${c.slide_number}:** ${c.headline}\n${c.body}\n\n`;
+            });
+        }
+        return md;
+    }
+
+    if (outputKey === "twitter") {
+        let md = `## Twitter / X Post Series\n\n`;
+        md += `**Primary Tweet:**\n${data.primary_post || ''}\n\n`;
+        if (data.thread && data.thread.length) {
+            md += `### Thread\n\n`;
+            data.thread.forEach((t, i) => md += `${i+1}/ ${t}\n\n`);
+        }
+        if (data.hashtags && data.hashtags.length) md += `Hashtags: ${data.hashtags.join(' ')}\n`;
+        return md;
+    }
+
+    return `# ${OUTPUT_TITLES[outputKey] || outputKey}\n\n` + JSON.stringify(data, null, 2);
+}
+
+let progressInterval = null;
+let timerStart = 0;
+
+function startProgressTimer(selectedCount) {
+    const card = document.getElementById("processingCard");
+    const stage = document.getElementById("processingStage");
+    const badge = document.getElementById("timerBadge");
+    const bar = document.getElementById("progressBar");
+    const detail = document.getElementById("processingDetail");
+    const elapsed = document.getElementById("elapsedTimer");
+
+    if (!card) return;
+    card.style.display = "block";
+    card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+    timerStart = Date.now();
+    let estSeconds = Math.max(35, selectedCount * 8);
+    let estMinStr = estSeconds >= 60 ? `~${Math.ceil(estSeconds / 60)} mins (${estSeconds}s)` : `~${estSeconds}s`;
+
+    bar.style.width = "6%";
+    stage.textContent = "Ingesting & Processing Content...";
+    detail.textContent = "Step 1 of 3: Parsing document content and source intelligence...";
+    badge.textContent = `⏱ Est. Processing Time: ${estMinStr}`;
+
+    if (progressInterval) clearInterval(progressInterval);
+    progressInterval = setInterval(() => {
+        const passed = Math.floor((Date.now() - timerStart) / 1000);
+        elapsed.textContent = `Elapsed: ${passed}s`;
+
+        const remaining = Math.max(3, estSeconds - passed);
+        const remStr = remaining >= 60 ? `~${Math.ceil(remaining / 60)} mins (${remaining}s remaining)` : `~${remaining}s remaining`;
+        badge.textContent = `⏱ Est. Time: ${remStr}`;
+
+        if (passed < 8) {
+            bar.style.width = `${10 + passed * 3}%`;
+            stage.textContent = "Ingesting & Normalizing Source...";
+            detail.textContent = "Step 1 of 3: Reading document paragraphs and extracting text...";
+        } else if (passed < 22) {
+            bar.style.width = `${34 + (passed - 8) * 3}%`;
+            stage.textContent = "Extracting Content Intelligence...";
+            detail.textContent = "Step 2 of 3: Extracting verified facts, timeline & named entities...";
+        } else {
+            const extra = Math.min(94, 76 + (passed - 22) * 0.8);
+            bar.style.width = `${extra}%`;
+            stage.textContent = `Synthesizing ${selectedCount} Deliverables in Parallel...`;
+            detail.textContent = "Step 3 of 3: Generating tailored outputs via NVIDIA NIM AI...";
+        }
+    }, 1000);
+}
+
+function stopProgressTimer() {
+    if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+    }
+    const card = document.getElementById("processingCard");
+    const bar = document.getElementById("progressBar");
+    if (bar) bar.style.width = "100%";
+    setTimeout(() => {
+        if (card) card.style.display = "none";
+    }, 1000);
+}
+
+async function downloadCurrentDeliverable() {
+    if (!generatedOutput && Object.keys(generatedOutputs).length === 0) {
+        showToast("Please generate content first.");
+        return;
+    }
+    const outputKey = getActiveFormatKey();
+    const dataKey = OUTPUT_KEY_MAP[outputKey];
+    const data = generatedOutputs[dataKey];
+    const title = OUTPUT_TITLES[outputKey] || outputKey;
+
+    if (!data) {
+        showToast(`No output available for ${title}.`);
+        return;
+    }
+
+    const API_BASE = window.location.protocol.startsWith("http") ? "" : "http://127.0.0.1:8000";
+
+    // 1. Presentation Deck -> Real PowerPoint (.pptx)
+    if (outputKey === "presentation") {
+        showToast("Generating PowerPoint presentation (.pptx)...");
+        try {
+            const resp = await fetch(`${API_BASE}/api/export`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ format_type: "presentation_deck", data: data })
+            });
+            if (resp.ok) {
+                const blob = await resp.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${title.replace(/[\s\/]/g, '_')}.pptx`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast("PowerPoint deck (.pptx) downloaded!");
+                return;
+            }
+        } catch (e) {
+            console.warn("PPTX export error, falling back to markdown", e);
+        }
+    }
+
+    // 2. Advisory Document -> Real Cyber Advisory PDF (.pdf)
+    if (outputKey === "advisory") {
+        showToast("Generating Cyber Advisory PDF (.pdf)...");
+        try {
+            const resp = await fetch(`${API_BASE}/api/export`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ format_type: "advisory_document", data: data })
+            });
+            if (resp.ok) {
+                const blob = await resp.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `Cyber_Threat_Advisory.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast("Advisory PDF (.pdf) downloaded!");
+                return;
+            }
+        } catch (e) {
+            console.warn("PDF export error, falling back to markdown", e);
+        }
+    }
+
+    // 3. Executive Summary -> Real Executive Briefing PDF (.pdf)
+    if (outputKey === "summary") {
+        showToast("Generating Executive Briefing PDF (.pdf)...");
+        try {
+            const resp = await fetch(`${API_BASE}/api/export`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ format_type: "executive_summary", data: data })
+            });
+            if (resp.ok) {
+                const blob = await resp.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `Executive_Briefing.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast("Executive Briefing PDF (.pdf) downloaded!");
+                return;
+            }
+        } catch (e) {
+            console.warn("PDF export error, falling back to markdown", e);
+        }
+    }
+
+    // 4. Video Package -> Real Playable Video (.webm / .mp4), Subtitles (.vtt) & Narration Script (.txt)
+    if (outputKey === "video") {
+        showToast("🎬 Exporting and downloading playable video (.webm)...");
+        exportRecordedVideo();
+        if (data.vtt) {
+            setTimeout(() => downloadFile("video_subtitles.vtt", data.vtt, "text/vtt;charset=utf-8"), 1500);
+        }
+        return;
+    }
+
+    // 5. Infographic -> Visual Interactive HTML (.html)
+    if (outputKey === "infographic") {
+        try {
+            const resp = await fetch(`${API_BASE}/api/export`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ format_type: "infographic", data: data })
+            });
+            if (resp.ok) {
+                const htmlText = await resp.text();
+                downloadFile("infographic.html", htmlText, "text/html;charset=utf-8");
+                showToast("Interactive Infographic (.html) downloaded!");
+                return;
+            }
+        } catch (e) {}
+    }
+
+    // 6. LinkedIn & Twitter -> Plain text publication copy (.txt)
+    if (outputKey === "linkedin" || outputKey === "twitter") {
+        let textContent = "";
+        if (outputKey === "linkedin") {
+            let parts = [];
+            if (data.hook) parts.push(`--- HOOK ---\n${data.hook}`);
+            if (data.post) parts.push(`--- POST BODY ---\n${data.post}`);
+            if (data.key_insights && data.key_insights.length) {
+                parts.push(`--- KEY INSIGHTS ---\n` + data.key_insights.map(ki => `• ${ki}`).join('\n'));
+            }
+            if (data.cta) parts.push(`--- CALL TO ACTION ---\n${data.cta}`);
+            if (data.hashtags && data.hashtags.length) parts.push(`--- HASHTAGS ---\n${data.hashtags.join(' ')}`);
+            if (data.carousel_slides && data.carousel_slides.length) {
+                parts.push(`--- CAROUSEL SLIDES (for PDF/Image Carousels) ---\n` + data.carousel_slides.map((s, i) => `[Slide ${s.slide_number || i+1}] ${s.headline || ''}\n${s.body || ''}`).join('\n\n'));
+            }
+            textContent = parts.join('\n\n');
+        } else {
+            let parts = [];
+            if (data.primary_post) parts.push(`--- PRIMARY TWEET (${(data.primary_post || '').length}/280 chars) ---\n${data.primary_post}`);
+            if (data.thread && data.thread.length) {
+                parts.push(`--- THREAD SERIES (${data.thread.length} tweets) ---\n` + data.thread.map((t, i) => `${i + 1}/ ${t}`).join('\n\n'));
+            }
+            if (data.key_indicators && data.key_indicators.length) {
+                parts.push(`--- KEY INDICATORS ---\n` + data.key_indicators.map(ki => `• ${ki}`).join('\n'));
+            }
+            if (data.cta) parts.push(`--- CALL TO ACTION ---\n${data.cta}`);
+            if (data.hashtags && data.hashtags.length) parts.push(`--- HASHTAGS ---\n${data.hashtags.join(' ')}`);
+            textContent = parts.join('\n\n');
+        }
+        downloadFile(`${title.replace(/[\s\/]/g, '_')}_copy.txt`, textContent, "text/plain;charset=utf-8");
+        return;
+    }
+
+    // Default Fallback
+    const markdown = formatDeliverableAsMarkdown(outputKey, data);
+    downloadFile(`${title.replace(/[\s\/]/g, '_')}.md`, markdown, "text/markdown;charset=utf-8");
+}
+
+async function downloadAllDeliverables() {
+    if (!generatedOutput && Object.keys(generatedOutputs).length === 0) {
+        showToast("Please generate content first.");
+        return;
+    }
+
+    const API_BASE = window.location.protocol.startsWith("http") ? "" : "http://127.0.0.1:8000";
+
+    if (typeof JSZip !== "undefined") {
+        showToast("Packaging all deliverables into ZIP...");
+        const zip = new JSZip();
+        const folder = zip.folder("InfoGen_AI_Deliverables");
+
+        // 1. Presentation .pptx
+        if (generatedOutputs["presentation_deck"]) {
+            try {
+                const r = await fetch(`${API_BASE}/api/export`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ format_type: "presentation_deck", data: generatedOutputs["presentation_deck"] })
+                });
+                if (r.ok) folder.file("Presentation_Deck.pptx", await r.blob());
+            } catch (e) {}
+        }
+
+        // 2. Advisory .pdf
+        if (generatedOutputs["advisory_document"]) {
+            try {
+                const r = await fetch(`${API_BASE}/api/export`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ format_type: "advisory_document", data: generatedOutputs["advisory_document"] })
+                });
+                if (r.ok) folder.file("Cyber_Threat_Advisory.pdf", await r.blob());
+            } catch (e) {}
+        }
+
+        // 3. Executive Summary .pdf
+        if (generatedOutputs["executive_summary"]) {
+            try {
+                const r = await fetch(`${API_BASE}/api/export`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ format_type: "executive_summary", data: generatedOutputs["executive_summary"] })
+                });
+                if (r.ok) folder.file("Executive_Briefing.pdf", await r.blob());
+            } catch (e) {}
+        }
+
+        // 4. Infographic .html
+        if (generatedOutputs["infographic"]) {
+            try {
+                const r = await fetch(`${API_BASE}/api/export`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ format_type: "infographic", data: generatedOutputs["infographic"] })
+                });
+                if (r.ok) folder.file("Infographic.html", await r.text());
+            } catch (e) {}
+        }
+
+        // 5. Video Subtitles & Script
+        if (generatedOutputs["video_package"]) {
+            const vp = generatedOutputs["video_package"];
+            if (vp.vtt) folder.file("Video_Subtitles.vtt", vp.vtt);
+            folder.file("Video_Script.txt", vp.script || "");
+        }
+
+        // 6. Social Posts
+        if (generatedOutputs["linkedin_post"]) {
+            const lp = generatedOutputs["linkedin_post"];
+            let lpParts = [];
+            if (lp.hook) lpParts.push(`--- HOOK ---\n${lp.hook}`);
+            if (lp.post) lpParts.push(`--- POST BODY ---\n${lp.post}`);
+            if (lp.key_insights && lp.key_insights.length) lpParts.push(`--- KEY INSIGHTS ---\n` + lp.key_insights.map(ki => `• ${ki}`).join('\n'));
+            if (lp.cta) lpParts.push(`--- CALL TO ACTION ---\n${lp.cta}`);
+            if (lp.hashtags && lp.hashtags.length) lpParts.push(`--- HASHTAGS ---\n${lp.hashtags.join(' ')}`);
+            if (lp.carousel_slides && lp.carousel_slides.length) {
+                lpParts.push(`--- CAROUSEL SLIDES (for PDF/Image Carousels) ---\n` + lp.carousel_slides.map((s, i) => `[Slide ${s.slide_number || i+1}] ${s.headline || ''}\n${s.body || ''}`).join('\n\n'));
+            }
+            folder.file("LinkedIn_Post.txt", lpParts.join('\n\n'));
+        }
+        if (generatedOutputs["twitter_post"]) {
+            const tp = generatedOutputs["twitter_post"];
+            let tpParts = [];
+            if (tp.primary_post) tpParts.push(`--- PRIMARY TWEET (${(tp.primary_post || '').length}/280 chars) ---\n${tp.primary_post}`);
+            if (tp.thread && tp.thread.length) {
+                tpParts.push(`--- THREAD SERIES (${tp.thread.length} tweets) ---\n` + tp.thread.map((t, i) => `${i + 1}/ ${t}`).join('\n\n'));
+            }
+            if (tp.key_indicators && tp.key_indicators.length) {
+                tpParts.push(`--- KEY INDICATORS ---\n` + tp.key_indicators.map(ki => `• ${ki}`).join('\n'));
+            }
+            if (tp.cta) tpParts.push(`--- CALL TO ACTION ---\n${tp.cta}`);
+            if (tp.hashtags && tp.hashtags.length) tpParts.push(`--- HASHTAGS ---\n${tp.hashtags.join(' ')}`);
+            folder.file("Twitter_Thread.txt", tpParts.join('\n\n'));
+        }
+
+        // 7. Combined text & raw JSON
+        folder.file("ALL_DELIVERABLES_COMBINED.md", generatedOutput);
+        folder.file("infogen_manifest.json", JSON.stringify(generatedOutputs, null, 2));
+
+        const content = await zip.generateAsync({ type: "blob" });
+        const url = URL.createObjectURL(content);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `InfoGen_AI_Deliverables_${new Date().toISOString().slice(0,10)}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast("Complete ZIP archive downloaded!");
+    } else {
+        let bundle = `# InfoGen AI — Complete Transformation Package\n\n`;
+        bundle += `Generated: ${new Date().toLocaleString()}\n\n---\n\n`;
+        for (const [navKey, dataKey] of Object.entries(OUTPUT_KEY_MAP)) {
+            const data = generatedOutputs[dataKey];
+            if (data) {
+                bundle += formatDeliverableAsMarkdown(navKey, data);
+                bundle += `\n\n---\n\n`;
+            }
+        }
+        downloadFile(`InfoGen_AI_All_Deliverables.md`, bundle, "text/markdown;charset=utf-8");
+    }
+}
+
+function startNewTransformation() {
+    clearSource();
+    const banner = document.getElementById("outputSuccessBanner");
+    if (banner) banner.style.display = "none";
+    scrollToId("source");
+    setTimeout(() => {
+        if (sourceText) sourceText.focus();
+    }, 450);
+    showToast("Ready for your next document or text!");
+}
+
+function clearSource(){
+    sourceText.value = "";
+    updateCount();
+    sourceInput.value = "";
+    sourceFiles.innerHTML = "";
+    uploadedFiles = [];
+    dropZone.classList.remove("dragging");
+    showToast("Source cleared.");
+}
+</script>
+</body>
+</html>

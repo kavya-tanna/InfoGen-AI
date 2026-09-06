@@ -1,0 +1,44 @@
+Generate a comprehensive, executive-ready Presentation Deck based on the source intelligence.
+
+PARAMETERS:
+- Target Audience: {audience}
+- Tone: {tone}
+- Language: {language}
+- Detail Level: {detail}
+- Objective: {objective}
+
+SOURCE INTELLIGENCE:
+{content_intelligence}
+
+CRITICAL RULES:
+- Generate 6 to 8 comprehensive, content-rich slides that thoroughly cover the source material.
+- Each slide MUST have 3 to 5 detailed, substantive bullet points (not brief phrases, but complete, informative explanations).
+- Ground all facts, figures, technical identifiers, versions, and claims directly in the source intelligence.
+- Never fabricate data or statistics.
+- Provide detailed speaker notes (2-3 paragraphs per slide) with sufficient depth for an executive presentation.
+- Include a specific visual diagram or chart recommendation for each slide.
+
+Return ONLY valid JSON matching this schema:
+{{
+  "type": "presentation_deck",
+  "title": "Compelling Executive Presentation Title",
+  "slides": [
+    {{
+      "slide_number": 1,
+      "title": "Executive Context & Problem Statement",
+      "category": "STRATEGIC OVERVIEW",
+      "purpose": "Establish baseline context and strategic urgency",
+      "key_points": [
+        "Comprehensive, detailed insight point 1 with data and context from source",
+        "Detailed point 2 explaining technical or business implications",
+        "Detailed point 3 covering scope and affected systems or stakeholders",
+        "Detailed point 4 highlighting immediate relevance or challenges"
+      ],
+      "body_content": "In-depth narrative synthesis providing full contextual background for this slide.",
+      "takeaway": "Key strategic takeaway summarizing the critical message of this slide.",
+      "key_metrics": ["Statistic or indicator 1 from source", "Metric 2 from source"],
+      "visual_recommendation": "Architecture Diagram: Layered data flow and perimeter defense model",
+      "speaker_notes": "Extensive speaking notes for the presenter. Explain the key findings in detail, reference specific data points, and guide the audience through the strategic implications."
+    }}
+  ]
+}}

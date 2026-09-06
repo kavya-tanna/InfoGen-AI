@@ -1,0 +1,33 @@
+Generate a professional LinkedIn post based on the source intelligence.
+
+PARAMETERS:
+- Target Audience: {audience}
+- Tone: {tone}
+- Language: {language}
+- Detail Level: {detail}
+- Objective: {objective}
+
+SOURCE INTELLIGENCE:
+{content_intelligence}
+
+Return ONLY valid JSON:
+{{
+  "type": "linkedin_post",
+  "hook": "attention-grabbing opening line",
+  "post": "full LinkedIn post body (use \n for line breaks)",
+  "key_insights": ["insight 1", "insight 2", "insight 3"],
+  "cta": "call to action",
+  "hashtags": ["#Hashtag1", "#Hashtag2"],
+  "carousel_slides": [
+    {{"slide_number": 1, "headline": "...", "body": "..."}}
+  ]
+}}
+
+RULES:
+- Hook must grab attention in the first line
+- Professional tone appropriate for LinkedIn
+- 3-5 key insights extracted from source
+- 5-8 relevant hashtags
+- Carousel slides for visual storytelling (4-6 slides)
+- Generate in {language}
+- All facts from source only
