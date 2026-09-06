@@ -1,4 +1,11 @@
-Generate an infographic specification based on the source intelligence.
+Design a concise visual information story from this source.
+- title names the subject; subtitle gives the central source-grounded message. Do not return a designer's generic template.
+- Choose the number and ordering of sections from distinct ideas in the source, not a fixed count.
+- key_statistics contains ONLY supplied quantities with clear units, labels and a specific source_reference. An empty list is correct when no quantities exist. Never insert example percentages.
+- Each section needs a specific section_title and concise content. data_points are short source-based labels or steps that add detail, not duplicates of content.
+- Choose visual_element from timeline, comparison, diagram, chart, metric_card or icon according to available evidence. Use timeline only for a documented sequence and chart only for comparable quantitative values.
+- key_messages are optional additional conclusions. Do not repeat the statistics and every section again.
+- information_hierarchy, layout, color_recommendations and icon_recommendations are optional design metadata. Keep them brief; valid colors use six-digit hex. Prefer white space, strong contrast, teal/coral accents and legible typography.
 
 PARAMETERS:
 - Target Audience: {audience}
@@ -10,32 +17,4 @@ PARAMETERS:
 SOURCE INTELLIGENCE:
 {content_intelligence}
 
-Return ONLY valid JSON:
-{{
-  "type": "infographic",
-  "title": "infographic title",
-  "subtitle": "subtitle or tagline",
-  "key_statistics": [
-    {{"value": "42%", "label": "description", "source_reference": "from source"}}
-  ],
-  "key_messages": ["message 1", "message 2"],
-  "sections": [
-    {{
-      "section_title": "...",
-      "content": "...",
-      "visual_element": "chart|icon|diagram|metric_card|timeline|comparison",
-      "data_points": ["..."]
-    }}
-  ],
-  "information_hierarchy": ["most important", "second", "third"],
-  "layout": "recommended layout description",
-  "color_recommendations": {{"primary": "#hex", "secondary": "#hex", "accent": "#hex", "rationale": "why these colors"}},
-  "icon_recommendations": ["icon description 1"]
-}}
-
-RULES:
-- 3-6 sections with specific visual element recommendations
-- Statistics must come from source only
-- Layout should be specific and actionable for designers
-- Generate in {language}
-- All data from source only — never fabricate statistics
+Return ONLY a JSON object conforming to the supplied schema. Write user-facing content in {language}. All factual claims must come from the source. Empty optional fields are preferable to invented or repetitive filler.

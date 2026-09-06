@@ -78,6 +78,8 @@ def sanitize_filename(filename: str) -> str:
 
 def validate_file(filename: str, content_type: str | None, file_size: int) -> tuple[bool, str]:
     """Validate uploaded file. Returns (is_valid, error_message)."""
+    if file_size == 0:
+        return False, "The file is empty."
     # Check size
     max_bytes = settings.max_file_size_mb * 1024 * 1024
     if file_size > max_bytes:
@@ -85,8 +87,8 @@ def validate_file(filename: str, content_type: str | None, file_size: int) -> tu
 
     # Check extension
     ext = os.path.splitext(filename)[1].lower()
-    if ext not in ALLOWED_EXTENSIONS:
-        return False, f"File extension '{ext}' is not allowed. Supported: {', '.join(ALLOWED_EXTENSIONS.keys())}"
+    if ext not in {".pdf", ".docx", ".txt"}:
+        return False, f"File extension '{ext}' is not allowed. Supported: PDF, DOCX, TXT"
 
     # Check MIME type if provided
     if content_type:

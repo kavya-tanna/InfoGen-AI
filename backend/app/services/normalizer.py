@@ -19,6 +19,9 @@ from app.utils.logging import logger
 @dataclass
 class ContentIntelligence:
     """Structured intelligence extracted from source content."""
+    title: str = ""
+    content_type: str = "Free-form Text"
+    source_text: str = ""
     summary: str = ""
     facts: list[dict[str, Any]] = field(default_factory=list)
     entities: list[dict[str, Any]] = field(default_factory=list)
@@ -98,37 +101,36 @@ def _load_prompt(relative_path: str) -> str:
 
 
 def extract_content_intelligence(source: NormalizedSource) -> ContentIntelligence:
-    """Extract ContentIntelligence from a NormalizedSource using instant heuristics."""
-    source_text = source.raw_text.strip()
-
-    # Pre-build instant heuristic intelligence
-    lines = [line.strip() for line in source_text.splitlines() if line.strip() and len(line.strip()) > 15]
-    facts = [{"claim": l[:160], "confidence": 0.9} for l in lines[:8]]
-    recs = [l[:160] for l in lines[8:13]]
+    """Extract source passages; do not infer recommendations from line positions."""
     import re
+    text = source.raw_text.strip()
+    passages = [p.strip() for p in re.split(r"\n+|(?<=[.!?])\s+(?=[A-Z])", text) if p.strip()]
+    passages = list(dict.fromkeys(passages))
+    title = source.metadata.get("title") or passages[0][:120]
+    facts = [{"claim": p, "evidence": p} for p in passages
+             if len(p) > 25 and p != passages[0]
+             and not re.match(r"(synthetic |this is a fictional|date:|all times)", p, re.I)][:24]
+    if not facts:
+        facts = [{"claim": p, "evidence": p} for p in passages if len(p) > 15]
+    recommendations = [p for p in passages if re.search(
+        r"\b(recommend\w*|mitigation|remediation|should|must|action[s]?|patch|upgrade|disable)\b", p, re.I)]
+    risks = [p for p in passages if re.search(
+        r"\b(risk[s]?|impact|limitation[s]?|vulnerab\w*|outage|root cause|affected)\b", p, re.I)]
+    # Only explicit measured quantities become statistics, not dates, CVEs or versions.
     numbers = []
-    for match in re.finditer(r'\b\d+(?:\.\d+)?%?\b', source_text[:2000]):
-        val = match.group(0)
-        if len(val) <= 10 and not val.startswith("00"):
-            numbers.append({"value": val, "context": source_text[max(0, match.start()-20):min(len(source_text), match.end()+20)].strip()})
-        if len(numbers) >= 5:
-            break
-
-    entities = []
-    for ent_match in re.finditer(r'\b[A-Z][a-zA-Z0-9_\-\.]{2,}\b', source_text[:2000]):
-        ename = ent_match.group(0)
-        if ename not in ["The", "And", "For", "With", "This", "Topic", "Scene", "Step"]:
-            entities.append({"name": ename, "type": "term", "context": "Source entity"})
-        if len(entities) >= 6:
-            break
-
-    ci = ContentIntelligence(
-        summary=source_text[:800],
-        facts=facts or [{"claim": source_text[:200], "confidence": 0.85}],
-        entities=entities,
-        numbers=numbers,
-        recommendations=recs,
-        uncertainties=[],
+    for p in passages:
+        for m in re.finditer(r"\b\d+(?:\.\d+)?(?:%|\s+(?:users|minutes|hours|participants|devices|schools|records|incidents|accounts))(?=\s|[.,;:]|$)", p, re.I):
+            numbers.append({"value": m.group(), "context": p})
+    return ContentIntelligence(
+        title=title,
+        content_type=source.metadata.get("content_type", "Free-form Text"),
+        source_text=text,
+        summary=" ".join(p["claim"] for p in facts[:3]) or text,
+        facts=facts,
+        numbers=numbers[:6],
+        recommendations=recommendations[:6],
+        risks=risks[:6],
+        source_evidence=[{"text": p["claim"]} for p in facts],
+        uncertainties=["Information absent from the supplied source is unavailable. "
+                       "Source statements have not been independently verified."],
     )
-    logger.info(f"Instant content intelligence ready: {len(ci.facts)} facts, {len(ci.entities)} entities")
-    return ci

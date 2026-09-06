@@ -107,6 +107,9 @@ def extract_docx(file_bytes: bytes, filename: str) -> NormalizedSource:
             if para.style and para.style.name and para.style.name.startswith("Heading"):
                 headings.append(para.text)
             paragraphs.append(para.text)
+        for table in doc.tables:
+            for row in table.rows:
+                paragraphs.append(" | ".join(cell.text for cell in row.cells))
 
         source.raw_text = "\n".join(paragraphs)
         source.metadata = {
@@ -124,7 +127,12 @@ def extract_docx(file_bytes: bytes, filename: str) -> NormalizedSource:
 def extract_txt(file_bytes: bytes, filename: str) -> NormalizedSource:
     """Extract text from plain text file."""
     source = NormalizedSource(source_type="txt", filename=filename)
-    source.raw_text = file_bytes.decode("utf-8", errors="replace")
+    try:
+        source.raw_text = file_bytes.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        raise ValueError("TXT files must use UTF-8 encoding.")
+    if "\x00" in source.raw_text:
+        raise ValueError("This file contains binary data, not plain text.")
     source.metadata = {"extraction_method": "direct", "byte_size": len(file_bytes)}
     logger.info(f"TXT extracted: {filename}, {len(source.raw_text)} chars")
     return source
@@ -134,10 +142,22 @@ def extract_url(url: str) -> NormalizedSource:
     """Fetch and extract readable content from a URL."""
     import requests
     from bs4 import BeautifulSoup
+    import socket
+    import ipaddress
+    from urllib.parse import urlparse
 
     is_valid, err = validate_url(url)
     if not is_valid:
         raise ValueError(f"URL validation failed: {err}")
+    parsed = urlparse(url)
+    if parsed.username or parsed.password:
+        raise ValueError("URLs with credentials are not supported.")
+    try:
+        addresses = socket.getaddrinfo(parsed.hostname, parsed.port or 443, type=socket.SOCK_STREAM)
+        if not addresses or any(not ipaddress.ip_address(a[4][0]).is_global for a in addresses):
+            raise ValueError("Only public internet URLs are supported.")
+    except OSError:
+        raise ValueError("Could not resolve this URL. Paste the article text instead.")
 
     source = NormalizedSource(source_type="url", filename=url)
 
@@ -149,13 +169,28 @@ def extract_url(url: str) -> NormalizedSource:
                 "User-Agent": "InfoGenAI/1.0 (Content Extraction Bot)",
                 "Accept": "text/html,application/xhtml+xml,text/plain",
             },
-            allow_redirects=True,
+            allow_redirects=False,
+            stream=True,
         )
+        if 300 <= response.status_code < 400:
+            response.close()
+            raise ValueError("This URL redirects. Paste the final public article URL or its text.")
         response.raise_for_status()
+        chunks = []
+        size = 0
+        try:
+            for chunk in response.iter_content(65536):
+                size += len(chunk)
+                if size > 2 * 1024 * 1024:
+                    raise ValueError("Webpage exceeds 2 MB. Paste a shorter excerpt.")
+                chunks.append(chunk)
+        finally:
+            response.close()
+        response._content = b"".join(chunks)
     except requests.Timeout:
         raise ValueError("URL request timed out after 15 seconds")
-    except requests.RequestException as e:
-        raise ValueError(f"Failed to fetch URL: {str(e)}")
+    except requests.RequestException:
+        raise ValueError("Could not fetch this public page. Paste the article text instead.")
 
     content_type = response.headers.get("content-type", "")
 
@@ -248,7 +283,6 @@ def extract_video(file_bytes: bytes, filename: str) -> NormalizedSource:
 
 _EXTRACTOR_MAP = {
     ".pdf": extract_pdf,
-    ".doc": extract_docx,
     ".docx": extract_docx,
     ".txt": extract_txt,
 }
@@ -264,12 +298,6 @@ def ingest_file(file_bytes: bytes, filename: str) -> NormalizedSource:
 
     if ext in _EXTRACTOR_MAP:
         return _EXTRACTOR_MAP[ext](file_bytes, filename)
-    elif ext in _IMAGE_EXTENSIONS:
-        return extract_image(file_bytes, filename)
-    elif ext in _AUDIO_EXTENSIONS:
-        return extract_audio(file_bytes, filename)
-    elif ext in _VIDEO_EXTENSIONS:
-        return extract_video(file_bytes, filename)
     else:
         raise ValueError(f"Unsupported file type: {ext}")
 

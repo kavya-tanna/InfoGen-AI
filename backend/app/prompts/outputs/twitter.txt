@@ -1,4 +1,11 @@
-Generate a Twitter/X post series based on the source intelligence.
+Write a concise X draft with optional continuation posts, using the actual source.
+- primary_post is a complete standalone post. thread contains ONLY continuations, not a duplicate of primary_post. Choose the number of continuations from the source and requested detail; [] is valid.
+- Every primary_post and thread string must fit 280 characters INCLUDING its hashtags, spaces and any CTA. Aim below 260 to leave headroom.
+- Do not add thread numbering in strings; the application numbers them.
+- Each continuation adds a new source fact or necessary qualification. No forced introduction, generic conclusion or repeated facts.
+- Put any useful tags or action directly in the publishable text. hashtags and cta are optional metadata, not extra text to append outside the character budget.
+- key_indicators contains only relevant literal source indicators; [] for non-security sources.
+- Preserve synthetic status concisely. Write plain text, without Markdown formatting.
 
 PARAMETERS:
 - Target Audience: {audience}
@@ -10,24 +17,4 @@ PARAMETERS:
 SOURCE INTELLIGENCE:
 {content_intelligence}
 
-Return ONLY valid JSON:
-{{
-  "type": "twitter_post",
-  "primary_post": "main tweet (max 280 chars)",
-  "thread": [
-    "thread tweet 1",
-    "thread tweet 2"
-  ],
-  "key_indicators": ["concise indicator 1", "indicator 2"],
-  "cta": "call to action",
-  "hashtags": ["#Tag1", "#Tag2"]
-}}
-
-RULES:
-- Primary post MUST be under 280 characters
-- Thread tweets should each be under 280 characters
-- Create 3-5 thread tweets for depth
-- Concise, impactful language
-- 3-5 relevant hashtags
-- Generate in {language}
-- All facts from source only
+Return ONLY a JSON object conforming to the supplied schema. Write user-facing content in {language}. All factual claims must come from the source. Empty optional fields are preferable to invented or repetitive filler.

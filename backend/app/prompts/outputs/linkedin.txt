@@ -1,4 +1,13 @@
-Generate a professional LinkedIn post based on the source intelligence.
+Write one publication-ready LinkedIn draft about THIS source, not a template advertising InfoGen AI.
+- post is the COMPLETE publishable text: a concrete opening, well-paced short paragraphs, an optional relevant closing and only the useful hashtags. No Markdown headings, bold markers, "Key Insight:" labels, or duplicated sections.
+- Lead with the actual news or finding, not a generic "What if" question, "in today's world", or exaggerated industry claim.
+- Adapt voice to the audience and tone without changing the facts or claiming unreported outcomes.
+- hook and cta are optional metadata excerpts already contained in post; never add a second opening or ending. Leave cta empty when no useful action is warranted. Avoid "Share your thoughts" engagement bait.
+- Use short paragraphs with deliberate line breaks, not one block reproducing the entire source. Select what this audience needs; do not mention missing budgets when they are irrelevant to the post.
+- hashtags are a small set of topic-specific tags already present in post. Do not invent filler tags to reach a count.
+- key_insights are optional editorial notes, not extra paragraphs of the published post. Avoid merely repeating every sentence.
+- carousel_slides is a separate optional companion. Choose its length from the actual story; [] is valid for a source that does not benefit from a carousel. Give each slide one distinct idea and sequential slide_number starting at 1. No filler cover, "Stay tuned" or repeated conclusion.
+- If the source is synthetic, preserve that status in one short natural phrase in the publishable post, not a long legal disclaimer.
 
 PARAMETERS:
 - Target Audience: {audience}
@@ -10,24 +19,4 @@ PARAMETERS:
 SOURCE INTELLIGENCE:
 {content_intelligence}
 
-Return ONLY valid JSON:
-{{
-  "type": "linkedin_post",
-  "hook": "attention-grabbing opening line",
-  "post": "full LinkedIn post body (use \n for line breaks)",
-  "key_insights": ["insight 1", "insight 2", "insight 3"],
-  "cta": "call to action",
-  "hashtags": ["#Hashtag1", "#Hashtag2"],
-  "carousel_slides": [
-    {{"slide_number": 1, "headline": "...", "body": "..."}}
-  ]
-}}
-
-RULES:
-- Hook must grab attention in the first line
-- Professional tone appropriate for LinkedIn
-- 3-5 key insights extracted from source
-- 5-8 relevant hashtags
-- Carousel slides for visual storytelling (4-6 slides)
-- Generate in {language}
-- All facts from source only
+Return ONLY a JSON object conforming to the supplied schema. Write user-facing content in {language}. All factual claims must come from the source. Empty optional fields are preferable to invented or repetitive filler.

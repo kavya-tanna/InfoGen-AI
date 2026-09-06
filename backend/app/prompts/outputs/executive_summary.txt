@@ -1,4 +1,13 @@
-Generate an Executive Summary based on the source intelligence.
+Write a decision-useful executive summary tailored to this source, not a generic business template.
+- headline states the central finding or development. context gives the minimum background needed to understand it.
+- key_takeaways contains the most important distinct source-grounded conclusions; choose the count from the substance and requested detail.
+- major_findings adds evidence or qualifications NOT already covered by takeaways.
+- business_impact describes the actual organizational implications, separating measured outcomes from anticipated effects. Do not invent ROI, cost savings or reputational damage.
+- risks, decisions_required and recommended_actions may be empty when the source supplies none. Do not manufacture an approval decision or action plan for an ordinary announcement.
+- Each recommended action states what to do and preserves whether it is proposed or already completed. priority and timeline are UNSPECIFIED unless explicitly supported by the source.
+- Overall priority is UNSPECIFIED unless the source supplies one. conclusion adds a useful synthesis or material limitation, not a repetition of the takeaways.
+- Concise means selective, not vague; detailed means adding evidence, not saying the same thing in more sections.
+- Do not copy takeaways into context, major_findings, impact and conclusion. For a short announcement, a compact overview with useful takeaways is enough; leave redundant optional sections empty.
 
 PARAMETERS:
 - Target Audience: {audience}
@@ -10,25 +19,4 @@ PARAMETERS:
 SOURCE INTELLIGENCE:
 {content_intelligence}
 
-Return ONLY valid JSON:
-{{
-  "type": "executive_summary",
-  "headline": "executive headline",
-  "key_takeaways": ["takeaway 1", "takeaway 2", "takeaway 3"],
-  "context": "situation and context overview",
-  "major_findings": ["finding 1", "finding 2"],
-  "business_impact": "organizational or business impact",
-  "risks": ["risk 1", "risk 2"],
-  "decisions_required": ["decision 1"],
-  "recommended_actions": [{{"action": "...", "priority": "HIGH|MEDIUM|LOW", "timeline": "immediate|short-term|long-term"}}],
-  "priority": "CRITICAL|HIGH|MEDIUM|LOW",
-  "conclusion": "concise concluding statement"
-}}
-
-RULES:
-- 3-7 key takeaways, concise and executive-friendly
-- Focus on business/organizational impact
-- Actions must be specific and prioritized
-- Avoid technical jargon unless audience is technical
-- Generate in {language}
-- All claims grounded in source
+Return ONLY a JSON object conforming to the supplied schema. Write user-facing content in {language}. All factual claims must come from the source. Empty optional fields are preferable to invented or repetitive filler.

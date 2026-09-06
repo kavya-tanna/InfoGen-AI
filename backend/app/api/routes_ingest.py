@@ -15,6 +15,8 @@ from app.schemas.responses import IngestResponse, ErrorResponse, ErrorDetail
 from app.services.ingestion import ingest_file, ingest_text, is_url, extract_url
 from app.services.security import validate_file, sanitize_filename, sanitize_source_text
 from app.utils.logging import logger
+from app.config import settings
+from starlette.concurrency import run_in_threadpool
 
 router = APIRouter()
 
@@ -38,7 +40,8 @@ async def ingest(
             continue
 
         safe_name = sanitize_filename(upload_file.filename)
-        file_bytes = await upload_file.read()
+        file_bytes = await upload_file.read(settings.max_file_size_mb * 1024 * 1024 + 1)
+        await upload_file.close()
 
         is_valid, err_msg = validate_file(safe_name, upload_file.content_type, len(file_bytes))
         if not is_valid:
@@ -46,7 +49,7 @@ async def ingest(
             continue
 
         try:
-            source = ingest_file(file_bytes, safe_name)
+            source = await run_in_threadpool(ingest_file, file_bytes, safe_name)
             extracted_parts.append(source.raw_text)
             file_records.append({
                 "filename": safe_name,
@@ -60,7 +63,7 @@ async def ingest(
     # Process URL
     if source_url:
         try:
-            url_source = extract_url(source_url)
+            url_source = await run_in_threadpool(extract_url, source_url)
             extracted_parts.append(url_source.raw_text)
             file_records.append({
                 "filename": source_url,

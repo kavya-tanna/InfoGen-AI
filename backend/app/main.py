@@ -58,8 +58,8 @@ app = FastAPI(
 # ── CORS ─────────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=".*",
-    allow_credentials=True,
+    allow_origins=settings.cors_origins,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -92,6 +92,12 @@ app.include_router(jobs_router, tags=["Jobs"])
 
 # ── Serve Frontend HTML ──────────────────────────────────────────────
 FRONTEND_PATH = Path(__file__).resolve().parent.parent.parent / "InfoGen_AI.html"
+
+
+@app.get("/api/samples")
+def demo_samples():
+    import json
+    return json.loads((FRONTEND_PATH.parent / "samples" / "demo.json").read_text(encoding="utf-8"))
 
 
 @app.get("/")

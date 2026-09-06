@@ -1,4 +1,12 @@
-Generate a structured Advisory Document based on the source intelligence.
+Produce a useful advisory appropriate to the source domain, not automatically a cybersecurity template.
+- For a security source, preserve affected products/versions, observed indicators, severity and mitigation exactly. Separate confirmed impact from potential exposure.
+- For a policy, news or research source, write an informational briefing on the described issue. Do not invent a threat, vulnerability, emergency or affected system.
+- title and executive_overview explain the actual issue and who needs to know. threat_description is the issue description; technical_analysis covers the mechanism or evidence only when supported.
+- Use document_kind="security" for cyber advisories/incidents, otherwise "informational". The UI will use suitable section headings.
+- severity is INFORMATIONAL unless the source explicitly supports a different rating. confidence_level is UNSPECIFIED unless the source supplies a confidence rating.
+- Keep immediate_actions, mitigation and long_term_recommendations distinct. Do not relabel already completed remediation as a newly required action.
+- Keep references to real supplied source references only. Use empty lists/strings for inapplicable sections rather than repeating "Not available in source" everywhere.
+- State an important missing fact once in the most relevant section; acknowledge uncertainty without filler. All technical identifiers must be verbatim from the source.
 
 PARAMETERS:
 - Target Audience: {audience}
@@ -10,29 +18,4 @@ PARAMETERS:
 SOURCE INTELLIGENCE:
 {content_intelligence}
 
-Return ONLY valid JSON:
-{{
-  "type": "advisory_document",
-  "title": "advisory title",
-  "severity": "CRITICAL|HIGH|MEDIUM|LOW|INFORMATIONAL",
-  "executive_overview": "concise executive overview",
-  "affected_systems": ["system or entity 1"],
-  "threat_description": "detailed threat/incident description",
-  "indicators": ["IOC or indicator from source"],
-  "impact": "impact assessment",
-  "technical_analysis": "technical analysis details",
-  "risk_assessment": "risk assessment",
-  "immediate_actions": ["action 1"],
-  "mitigation": ["mitigation step 1"],
-  "long_term_recommendations": ["recommendation 1"],
-  "references": ["reference or evidence from source"],
-  "confidence_level": "HIGH|MEDIUM|LOW"
-}}
-
-CRITICAL RULES:
-- NEVER invent CVEs, IP addresses, hashes, domains, vulnerabilities, victims, dates, or technical facts
-- If source does not contain specific indicators, set indicators to ["Not available in source."]
-- If severity cannot be determined, use "INFORMATIONAL"
-- All technical details must come directly from the source
-- Confidence level reflects source quality
-- Generate in {language} but preserve technical identifiers in original form
+Return ONLY a JSON object conforming to the supplied schema. Write user-facing content in {language}. All factual claims must come from the source. Empty optional fields are preferable to invented or repetitive filler.
