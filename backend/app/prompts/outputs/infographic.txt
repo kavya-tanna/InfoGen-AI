@@ -1,0 +1,41 @@
+Generate an infographic specification based on the source intelligence.
+
+PARAMETERS:
+- Target Audience: {audience}
+- Tone: {tone}
+- Language: {language}
+- Detail Level: {detail}
+- Objective: {objective}
+
+SOURCE INTELLIGENCE:
+{content_intelligence}
+
+Return ONLY valid JSON:
+{{
+  "type": "infographic",
+  "title": "infographic title",
+  "subtitle": "subtitle or tagline",
+  "key_statistics": [
+    {{"value": "42%", "label": "description", "source_reference": "from source"}}
+  ],
+  "key_messages": ["message 1", "message 2"],
+  "sections": [
+    {{
+      "section_title": "...",
+      "content": "...",
+      "visual_element": "chart|icon|diagram|metric_card|timeline|comparison",
+      "data_points": ["..."]
+    }}
+  ],
+  "information_hierarchy": ["most important", "second", "third"],
+  "layout": "recommended layout description",
+  "color_recommendations": {{"primary": "#hex", "secondary": "#hex", "accent": "#hex", "rationale": "why these colors"}},
+  "icon_recommendations": ["icon description 1"]
+}}
+
+RULES:
+- 3-6 sections with specific visual element recommendations
+- Statistics must come from source only
+- Layout should be specific and actionable for designers
+- Generate in {language}
+- All data from source only — never fabricate statistics

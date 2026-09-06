@@ -1,0 +1,12 @@
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/"
+  to = "/InfoGen_AI.html"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/InfoGen_AI.html"
+  status = 200

@@ -1,0 +1,34 @@
+Generate an Executive Summary based on the source intelligence.
+
+PARAMETERS:
+- Target Audience: {audience}
+- Tone: {tone}
+- Language: {language}
+- Detail Level: {detail}
+- Objective: {objective}
+
+SOURCE INTELLIGENCE:
+{content_intelligence}
+
+Return ONLY valid JSON:
+{{
+  "type": "executive_summary",
+  "headline": "executive headline",
+  "key_takeaways": ["takeaway 1", "takeaway 2", "takeaway 3"],
+  "context": "situation and context overview",
+  "major_findings": ["finding 1", "finding 2"],
+  "business_impact": "organizational or business impact",
+  "risks": ["risk 1", "risk 2"],
+  "decisions_required": ["decision 1"],
+  "recommended_actions": [{{"action": "...", "priority": "HIGH|MEDIUM|LOW", "timeline": "immediate|short-term|long-term"}}],
+  "priority": "CRITICAL|HIGH|MEDIUM|LOW",
+  "conclusion": "concise concluding statement"
+}}
+
+RULES:
+- 3-7 key takeaways, concise and executive-friendly
+- Focus on business/organizational impact
+- Actions must be specific and prioritized
+- Avoid technical jargon unless audience is technical
+- Generate in {language}
+- All claims grounded in source

@@ -1,0 +1,33 @@
+Generate a Twitter/X post series based on the source intelligence.
+
+PARAMETERS:
+- Target Audience: {audience}
+- Tone: {tone}
+- Language: {language}
+- Detail Level: {detail}
+- Objective: {objective}
+
+SOURCE INTELLIGENCE:
+{content_intelligence}
+
+Return ONLY valid JSON:
+{{
+  "type": "twitter_post",
+  "primary_post": "main tweet (max 280 chars)",
+  "thread": [
+    "thread tweet 1",
+    "thread tweet 2"
+  ],
+  "key_indicators": ["concise indicator 1", "indicator 2"],
+  "cta": "call to action",
+  "hashtags": ["#Tag1", "#Tag2"]
+}}
+
+RULES:
+- Primary post MUST be under 280 characters
+- Thread tweets should each be under 280 characters
+- Create 3-5 thread tweets for depth
+- Concise, impactful language
+- 3-5 relevant hashtags
+- Generate in {language}
+- All facts from source only

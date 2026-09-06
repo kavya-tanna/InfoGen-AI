@@ -1,0 +1,38 @@
+Generate a structured Advisory Document based on the source intelligence.
+
+PARAMETERS:
+- Target Audience: {audience}
+- Tone: {tone}
+- Language: {language}
+- Detail Level: {detail}
+- Objective: {objective}
+
+SOURCE INTELLIGENCE:
+{content_intelligence}
+
+Return ONLY valid JSON:
+{{
+  "type": "advisory_document",
+  "title": "advisory title",
+  "severity": "CRITICAL|HIGH|MEDIUM|LOW|INFORMATIONAL",
+  "executive_overview": "concise executive overview",
+  "affected_systems": ["system or entity 1"],
+  "threat_description": "detailed threat/incident description",
+  "indicators": ["IOC or indicator from source"],
+  "impact": "impact assessment",
+  "technical_analysis": "technical analysis details",
+  "risk_assessment": "risk assessment",
+  "immediate_actions": ["action 1"],
+  "mitigation": ["mitigation step 1"],
+  "long_term_recommendations": ["recommendation 1"],
+  "references": ["reference or evidence from source"],
+  "confidence_level": "HIGH|MEDIUM|LOW"
+}}
+
+CRITICAL RULES:
+- NEVER invent CVEs, IP addresses, hashes, domains, vulnerabilities, victims, dates, or technical facts
+- If source does not contain specific indicators, set indicators to ["Not available in source."]
+- If severity cannot be determined, use "INFORMATIONAL"
+- All technical details must come directly from the source
+- Confidence level reflects source quality
+- Generate in {language} but preserve technical identifiers in original form
