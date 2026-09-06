@@ -1149,9 +1149,7 @@ select,textarea{max-width:100%}
 
         <div class="preview-body" id="previewBody">
             <div id="previewPlaceholder" style="text-align:center;padding:56px 20px;border:2px dashed var(--border, #dce2e9);border-radius:12px;background:rgba(244,247,250,0.5);margin:10px 0;">
-                <div style="width:56px;height:56px;margin:0 auto 16px;background:rgba(91,124,250,0.12);color:#5b7cfa;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;">
-                    ✦
-                </div>
+                
                 <h3 style="font-size:16px;font-weight:700;color:var(--text, #1f2937);margin:0 0 8px;">No Deliverables Generated Yet</h3>
                 <p style="font-size:13px;max-width:460px;margin:0 auto 20px;line-height:1.5;color:var(--text-muted, #64748b);">
                     Upload your source file (PDF, DOCX, TXT) or paste text above, select your desired output formats in the Hub, and click <strong>Generate</strong> to produce your tailored deliverables.
@@ -2243,7 +2241,7 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
         lockInputs(false);
         btn.disabled = false;
         const currentCount = checks.filter(c => c.checked).length;
-        btn.innerHTML = `✧ &nbsp; Generate <span id="generateCount">${currentCount}</span> Selected Deliverables`;
+        btn.innerHTML = `Generate <span id="generateCount">${currentCount}</span> Selected Deliverables`;
     }
 });
 
