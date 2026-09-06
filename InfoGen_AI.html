@@ -2459,7 +2459,7 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
         setFormatHubLocked(false);
         btn.disabled = false;
         const currentCount = checks.filter(c => c.checked).length;
-        btn.innerHTML = `✧ &nbsp; Generate <span id="generateCount">${currentCount}</span> Selected Deliverables`;
+        btn.innerHTML = `Generate <span id="generateCount">${currentCount}</span> Selected Deliverables`;
     }
 });
 
